@@ -11,6 +11,7 @@ const GET_USER_ACCOUNT_DATA_SELECTOR = '0xbf92857c';
 const GET_PENDING_REWARDS_SELECTOR = '0xf6ed2017';
 const REWARDS_CLAIMED_TOPIC =
   '0xfc30cddea38e2bf4d6ea7d3f9ed3b6ad7f176419f4963bd81318067a4aee73fe';
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const SECONDS_PER_YEAR = 365n * 24n * 60n * 60n;
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 
@@ -62,15 +63,52 @@ interface RpcLog {
   data: string;
 }
 
-async function getClaimedRewards(userAddress: string) {
-  const logs = (await rpcCall('eth_getLogs', [
-    {
-      address: QIFLOW_CONTRACTS.QIFlowRewards,
-      fromBlock: '0x0',
-      toBlock: 'latest',
-      topics: [REWARDS_CLAIMED_TOPIC, `0x${encodeAddress(userAddress)}`],
-    },
-  ])) as unknown as RpcLog[];
+interface LogFilter {
+  address: string;
+  fromBlock: string;
+  toBlock: string;
+  topics: string[];
+}
+
+async function getLogs(filter: LogFilter) {
+  try {
+    return (await rpcCall('eth_getLogs', [filter])) as unknown as RpcLog[];
+  } catch {
+    const latestHex = await rpcCall('eth_blockNumber');
+    const latest = BigInt(latestHex);
+    const fallbackStart = latest > 500_000n ? latest - 500_000n : 0n;
+    return (await rpcCall('eth_getLogs', [
+      {
+        ...filter,
+        fromBlock: `0x${fallbackStart.toString(16)}`,
+        toBlock: 'latest',
+      },
+    ])) as unknown as RpcLog[];
+  }
+}
+
+async function getClaimedRewardsFromRewardEvents(userAddress: string) {
+  const logs = await getLogs({
+    address: QIFLOW_CONTRACTS.QIFlowRewards,
+    fromBlock: '0x0',
+    toBlock: 'latest',
+    topics: [REWARDS_CLAIMED_TOPIC, `0x${encodeAddress(userAddress)}`],
+  });
+
+  return logs.reduce((total, log) => total + BigInt(log.data), 0n);
+}
+
+async function getClaimedRewardsFromTokenTransfers(userAddress: string) {
+  const logs = await getLogs({
+    address: QIFLOW_CONTRACTS.QIFlowToken,
+    fromBlock: '0x0',
+    toBlock: 'latest',
+    topics: [
+      TRANSFER_TOPIC,
+      `0x${encodeAddress(QIFLOW_CONTRACTS.QIFlowRewards)}`,
+      `0x${encodeAddress(userAddress)}`,
+    ],
+  });
 
   return logs.reduce((total, log) => total + BigInt(log.data), 0n);
 }
@@ -129,7 +167,12 @@ export async function GET(request: Request) {
       pendingRewards = decodeWords(pendingRewardsHex)[0] ?? 0n;
 
       try {
-        claimedRewards = await getClaimedRewards(address);
+        const [rewardEventTotal, tokenTransferTotal] = await Promise.all([
+          getClaimedRewardsFromRewardEvents(address),
+          getClaimedRewardsFromTokenTransfers(address),
+        ]);
+        claimedRewards =
+          tokenTransferTotal > rewardEventTotal ? tokenTransferTotal : rewardEventTotal;
       } catch (err) {
         console.warn('[qie/protocol] failed to fetch claimed rewards logs', err);
       }
