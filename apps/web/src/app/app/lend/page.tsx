@@ -67,24 +67,50 @@ function useWalletBalance(address: string | null) {
   });
 }
 
+interface ProtocolData {
+  qie: {
+    collateralFactorPct: number;
+    supplyAPYPct: number;
+    liquidityQIE: string;
+    userSupplyQIE: string;
+  };
+}
+
+function useProtocolData(address: string | null) {
+  return useQuery<ProtocolData>({
+    queryKey: ['qiflow-protocol', address],
+    queryFn: async () => {
+      const query = address ? `?address=${address}` : '';
+      const res = await fetch(`/api/qie/protocol${query}`);
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+}
+
 function MarketRow({
   market,
   account,
   isConnected,
   isCorrectNetwork,
   qieBalance,
+  protocolData,
   connect,
   switchToQIE,
   refetchWallet,
+  refetchProtocol,
 }: {
   market: (typeof MARKETS)[0];
   account: string | null;
   isConnected: boolean;
   isCorrectNetwork: boolean;
   qieBalance?: string | null;
+  protocolData?: ProtocolData;
   connect: () => Promise<void>;
   switchToQIE: () => Promise<void>;
   refetchWallet: () => void;
+  refetchProtocol: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -124,7 +150,10 @@ function MarketRow({
 
       toast.success(`Supply transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
       setAmount('');
-      window.setTimeout(refetchWallet, 5000);
+      window.setTimeout(() => {
+        refetchWallet();
+        refetchProtocol();
+      }, 5000);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to supply QIE.';
       toast.error(message);
@@ -163,15 +192,21 @@ function MarketRow({
         <div className="hidden sm:grid grid-cols-3 gap-6 text-center">
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Supply APY</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">—</div>
+            <div className="text-sm font-bold text-[#8B9CC8]">
+              {protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-'}
+            </div>
           </div>
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Collateral</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">—</div>
+            <div className="text-sm font-bold text-[#8B9CC8]">
+              {protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-'}
+            </div>
           </div>
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Liquidity</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">—</div>
+            <div className="text-sm font-bold text-[#8B9CC8]">
+              {protocolData ? `${parseFloat(protocolData.qie.liquidityQIE).toFixed(2)} QIE` : '-'}
+            </div>
           </div>
         </div>
 
@@ -190,8 +225,14 @@ function MarketRow({
               {[
                 { label: 'Asset', value: market.name },
                 { label: 'Symbol', value: market.symbol },
-                { label: 'Collateral Factor', value: '— (set by contract)' },
-                { label: 'Supply APY', value: '— (set by contract)' },
+                {
+                  label: 'Collateral Factor',
+                  value: protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-',
+                },
+                {
+                  label: 'Supply APY',
+                  value: protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-',
+                },
                 { label: 'Description', value: market.description },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between text-sm">
@@ -288,6 +329,7 @@ export default function LendPage() {
     switchToQIE,
   } = useWeb3();
   const { data: walletData, refetch: refetchWallet } = useWalletBalance(account);
+  const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -322,12 +364,17 @@ export default function LendPage() {
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Total Supplied</p>
-            <p className="text-lg font-bold text-[#8B9CC8]">—</p>
-            <p className="text-xs text-[#8B9CC8]">Connect contracts</p>
+            <p className="text-lg font-bold text-white">
+              {protocolData ? parseFloat(protocolData.qie.userSupplyQIE).toFixed(4) : '-'}{' '}
+              <span className="text-sm text-[#8B9CC8]">QIE</span>
+            </p>
+            <p className="text-xs text-[#8B9CC8]">From QIFlowPool</p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Net APY</p>
-            <p className="text-lg font-bold text-[#00E676]">—</p>
+            <p className="text-lg font-bold text-[#00E676]">
+              {protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-'}
+            </p>
             <p className="text-xs text-[#8B9CC8]">Across all markets</p>
           </div>
         </div>
@@ -347,9 +394,11 @@ export default function LendPage() {
               isConnected={isConnected}
               isCorrectNetwork={isCorrectNetwork}
               qieBalance={walletData?.balanceQIE}
+              protocolData={protocolData}
               connect={connect}
               switchToQIE={switchToQIE}
               refetchWallet={() => refetchWallet()}
+              refetchProtocol={() => refetchProtocol()}
             />
           ))}
         </div>
