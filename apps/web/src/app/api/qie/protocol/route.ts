@@ -9,6 +9,8 @@ const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
 const GET_USER_BORROW_BALANCE_SELECTOR = '0x888c21a1';
 const GET_USER_ACCOUNT_DATA_SELECTOR = '0xbf92857c';
 const GET_PENDING_REWARDS_SELECTOR = '0xf6ed2017';
+const REWARDS_CLAIMED_TOPIC =
+  '0xfc30cddea38e2bf4d6ea7d3f9ed3b6ad7f176419f4963bd81318067a4aee73fe';
 const SECONDS_PER_YEAR = 365n * 24n * 60n * 60n;
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 
@@ -56,6 +58,23 @@ async function ethCall(data: string, to: string = QIFLOW_CONTRACTS.QIFlowPool) {
   ]);
 }
 
+interface RpcLog {
+  data: string;
+}
+
+async function getClaimedRewards(userAddress: string) {
+  const logs = (await rpcCall('eth_getLogs', [
+    {
+      address: QIFLOW_CONTRACTS.QIFlowRewards,
+      fromBlock: '0x0',
+      toBlock: 'latest',
+      topics: [REWARDS_CLAIMED_TOPIC, `0x${encodeAddress(userAddress)}`],
+    },
+  ])) as unknown as RpcLog[];
+
+  return logs.reduce((total, log) => total + BigInt(log.data), 0n);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const address = searchParams.get('address');
@@ -84,6 +103,7 @@ export async function GET(request: Request) {
     let availableBorrowUSD = 0n;
     let healthFactor = 0n;
     let pendingRewards = 0n;
+    let claimedRewards = 0n;
     if (address) {
       const userSupplyHex = await ethCall(
         `${GET_USER_SUPPLY_BALANCE_SELECTOR}${encodeAddress(address)}${nativeArg}`
@@ -107,6 +127,12 @@ export async function GET(request: Request) {
         QIFLOW_CONTRACTS.QIFlowRewards
       );
       pendingRewards = decodeWords(pendingRewardsHex)[0] ?? 0n;
+
+      try {
+        claimedRewards = await getClaimedRewards(address);
+      } catch (err) {
+        console.warn('[qie/protocol] failed to fetch claimed rewards logs', err);
+      }
     }
 
     return Response.json({
@@ -125,6 +151,7 @@ export async function GET(request: Request) {
         availableBorrowUSD: formatUnits(availableBorrowUSD),
         healthFactor: healthFactor === 2n ** 256n - 1n ? null : Number(healthFactor) / 1e18,
         pendingRewardsQIF: formatUnits(pendingRewards),
+        claimedRewardsQIF: formatUnits(claimedRewards),
       },
     });
   } catch (err) {

@@ -75,6 +75,7 @@ interface ProtocolData {
     userSupplyQIE: string;
     userBorrowQIE: string;
     pendingRewardsQIF: string;
+    claimedRewardsQIF: string;
   };
 }
 
@@ -585,7 +586,9 @@ export default function PortfolioPage() {
           </div>
           <div className="bg-[#0D1535] rounded-xl p-3">
             <p className="text-xs text-[#8B9CC8] mb-1">Claimed Total</p>
-            <p className="text-lg font-bold text-[#8B9CC8]">On-chain history</p>
+            <p className="text-lg font-bold text-white">
+              {formatQie(protocolData?.qie.claimedRewardsQIF)} QIF
+            </p>
           </div>
         </div>
         <button
