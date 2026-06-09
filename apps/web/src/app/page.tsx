@@ -423,7 +423,7 @@ export default function QIFlowLanding() {
               Reddit
             </a>
             <a
-              href="https://github.com/qieadmin"
+              href="https://github.com/vickman787/QIFlow"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition-colors"
