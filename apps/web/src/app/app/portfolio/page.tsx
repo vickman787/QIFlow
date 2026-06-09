@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 
 const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
+const REPAY_NATIVE_SELECTOR = '0xedba8209';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 
 function parseQieToWei(value: string) {
@@ -68,8 +69,10 @@ interface ProtocolData {
   qie: {
     collateralFactorPct: number;
     supplyAPYPct: number;
+    borrowAPYPct: number;
     liquidityQIE: string;
     userSupplyQIE: string;
+    userBorrowQIE: string;
   };
 }
 
@@ -117,7 +120,9 @@ export default function PortfolioPage() {
     switchToQIE,
   } = useWeb3();
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [repayAmount, setRepayAmount] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [isRepaying, setIsRepaying] = useState(false);
   const { data: walletData, refetch } = useWalletData(account);
   const { data: stats } = useNetworkStats();
   const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
@@ -161,6 +166,8 @@ export default function PortfolioPage() {
     chainId === 1990 ? 'QIE Mainnet' : chainId === 1983 ? 'QIE Testnet' : `Chain ${chainId}`;
   const suppliedQie = Number.parseFloat(protocolData?.qie.userSupplyQIE ?? '0');
   const hasSuppliedQie = Number.isFinite(suppliedQie) && suppliedQie > 0;
+  const borrowedQie = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0');
+  const hasBorrowedQie = Number.isFinite(borrowedQie) && borrowedQie > 0;
 
   const handleRefresh = () => {
     refetch();
@@ -203,6 +210,46 @@ export default function PortfolioPage() {
       toast.error(message);
     } finally {
       setIsWithdrawing(false);
+    }
+  };
+
+  const handleRepayNative = async (amount: string) => {
+    if (!isCorrectNetwork) {
+      await switchToQIE();
+      return;
+    }
+
+    if (!account || !window.ethereum) {
+      toast.error('MetaMask is required to repay QIE.');
+      return;
+    }
+
+    setIsRepaying(true);
+    try {
+      const wei = parseQieToWei(amount);
+      const txHash = (await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            value: `0x${wei.toString(16)}`,
+            data: REPAY_NATIVE_SELECTOR,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Repay transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setRepayAmount('');
+      window.setTimeout(() => {
+        refetch();
+        refetchProtocol();
+      }, 5000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to repay QIE.';
+      toast.error(message);
+    } finally {
+      setIsRepaying(false);
     }
   };
 
@@ -310,8 +357,10 @@ export default function PortfolioPage() {
             <Briefcase className="w-4 h-4 text-[#7B2FBE]" />
             <span className="text-xs text-[#8B9CC8]">Protocol Borrow</span>
           </div>
-          <p className="text-lg font-bold text-[#8B9CC8]">—</p>
-          <p className="text-xs text-[#8B9CC8]">Awaiting contracts</p>
+          <p className="text-lg font-bold text-white">
+            {formatQie(protocolData?.qie.userBorrowQIE)}
+          </p>
+          <p className="text-xs text-[#8B9CC8]">QIE borrowed</p>
         </div>
       </div>
 
@@ -403,10 +452,66 @@ export default function PortfolioPage() {
             + Borrow
           </Link>
         </div>
-        <EmptyPositions
-          title="No borrowed assets yet"
-          subtitle="Borrow against your collateral on the Borrow page."
-        />
+        {hasBorrowedQie ? (
+          <div className="bg-[#131B3D] border border-[#7B2FBE]/20 rounded-2xl p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-[#7B2FBE]/15 flex items-center justify-center text-sm font-black text-[#00D4FF]">
+                  QIE
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">QIE (Native)</p>
+                  <p className="text-xs text-[#8B9CC8]">Borrowed debt</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-right">
+                <div>
+                  <p className="text-xs text-[#8B9CC8]">Borrowed</p>
+                  <p className="text-sm font-bold text-white">
+                    {formatQie(protocolData?.qie.userBorrowQIE)} QIE
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#8B9CC8]">Borrow APY</p>
+                  <p className="text-sm font-bold text-white">
+                    {protocolData ? `${protocolData.qie.borrowAPYPct.toFixed(2)}%` : '-'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-[#0D1535] px-3">
+                <input
+                  value={repayAmount}
+                  onChange={(event) => setRepayAmount(event.target.value)}
+                  placeholder="0.00"
+                  inputMode="decimal"
+                  className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                />
+                <button
+                  onClick={() => setRepayAmount(protocolData?.qie.userBorrowQIE ?? '')}
+                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                >
+                  Max
+                </button>
+              </div>
+              <button
+                onClick={() => handleRepayNative(repayAmount)}
+                disabled={isRepaying}
+                className="rounded-xl border border-[#00D4FF]/30 px-5 py-3 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isRepaying ? 'Repaying...' : 'Repay QIE'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <EmptyPositions
+            title="No borrowed assets yet"
+            subtitle="Borrow against your collateral on the Borrow page."
+          />
+        )}
       </div>
 
       {/* QIF Rewards */}

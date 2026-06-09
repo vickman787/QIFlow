@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useWeb3 } from '@/context/Web3Context';
 import { useQuery } from '@tanstack/react-query';
+import { QIFLOW_CONTRACTS } from '@/lib/qiflow-contracts';
 import {
   ArrowDownUp,
   Wallet,
@@ -13,6 +14,30 @@ import {
   ChevronUp,
   ShieldAlert,
 } from 'lucide-react';
+import { toast } from 'sonner';
+
+const BORROW_NATIVE_SELECTOR = '0x884b9343';
+const REPAY_NATIVE_SELECTOR = '0xedba8209';
+const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+
+function parseQieToWei(value: string) {
+  const trimmed = value.trim();
+  if (!/^\d+(\.\d{0,18})?$/.test(trimmed)) {
+    throw new Error('Enter a valid QIE amount.');
+  }
+
+  const [wholePart, fractionPart = ''] = trimmed.split('.');
+  const whole = BigInt(wholePart || '0') * WEI_PER_QIE;
+  const fraction = BigInt(fractionPart.padEnd(18, '0') || '0');
+  const wei = whole + fraction;
+
+  if (wei <= 0n) throw new Error('Amount must be greater than 0.');
+  return `0x${wei.toString(16)}`;
+}
+
+function encodeUint256(value: string) {
+  return value.replace(/^0x/, '').padStart(64, '0');
+}
 
 const BORROW_MARKETS = [
   {
@@ -58,6 +83,50 @@ function useWalletBalance(address: string | null) {
   });
 }
 
+interface ProtocolData {
+  qie: {
+    collateralFactorPct: number;
+    borrowAPYPct: number;
+    liquidityQIE: string;
+    userSupplyQIE: string;
+    userBorrowQIE: string;
+    totalCollateralUSD: string;
+    totalBorrowUSD: string;
+    availableBorrowUSD: string;
+    healthFactor: number | null;
+  };
+}
+
+function useProtocolData(address: string | null) {
+  return useQuery<ProtocolData>({
+    queryKey: ['qiflow-protocol', address],
+    queryFn: async () => {
+      const query = address ? `?address=${address}` : '';
+      const res = await fetch(`/api/qie/protocol${query}`);
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+}
+
+function formatQie(value?: string | null, decimals = 4) {
+  if (!value) return '-';
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '-';
+  return amount.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  });
+}
+
+function minNumericString(left?: string, right?: string) {
+  const a = Number.parseFloat(left ?? '0');
+  const b = Number.parseFloat(right ?? '0');
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return '0';
+  return Math.max(0, Math.min(a, b)).toString();
+}
+
 function HealthBar({ value }: { value: number | null }) {
   const pct = value !== null ? Math.min(100, Math.max(0, (value / 3) * 100)) : 0;
   const color = !value ? '#8B9CC8' : value > 1.5 ? '#00E676' : value > 1.1 ? '#FFB74D' : '#FF5252';
@@ -83,9 +152,126 @@ function HealthBar({ value }: { value: number | null }) {
   );
 }
 
-function BorrowMarketRow({ market }: { market: (typeof BORROW_MARKETS)[0] }) {
+function BorrowMarketRow({
+  market,
+  account,
+  isConnected,
+  isCorrectNetwork,
+  protocolData,
+  connect,
+  switchToQIE,
+  refetchWallet,
+  refetchProtocol,
+}: {
+  market: (typeof BORROW_MARKETS)[0];
+  account: string | null;
+  isConnected: boolean;
+  isCorrectNetwork: boolean;
+  protocolData?: ProtocolData;
+  connect: () => Promise<void>;
+  switchToQIE: () => Promise<void>;
+  refetchWallet: () => void;
+  refetchProtocol: () => void;
+}) {
   const [open, setOpen] = useState(false);
+  const [borrowAmount, setBorrowAmount] = useState('');
+  const [repayAmount, setRepayAmount] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isLive = market.status === 'live';
+  const availableToBorrow = minNumericString(
+    protocolData?.qie.availableBorrowUSD,
+    protocolData?.qie.liquidityQIE
+  );
+  const hasDebt = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0') > 0;
+
+  const refreshAfterTx = () => {
+    window.setTimeout(() => {
+      refetchWallet();
+      refetchProtocol();
+    }, 5000);
+  };
+
+  const ensureReady = async () => {
+    if (!isConnected) {
+      await connect();
+      return false;
+    }
+
+    if (!isCorrectNetwork) {
+      await switchToQIE();
+      return false;
+    }
+
+    if (!account || !window.ethereum) {
+      toast.error('MetaMask is required to use QIFlow.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleBorrowNative = async () => {
+    if (!(await ensureReady())) return;
+
+    setIsSubmitting(true);
+    try {
+      const ethereum = window.ethereum;
+      if (!ethereum) throw new Error('MetaMask is required to borrow QIE.');
+
+      const value = parseQieToWei(borrowAmount);
+      const txHash = (await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            data: `${BORROW_NATIVE_SELECTOR}${encodeUint256(value)}`,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Borrow transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setBorrowAmount('');
+      refreshAfterTx();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to borrow QIE.';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRepayNative = async () => {
+    if (!(await ensureReady())) return;
+
+    setIsSubmitting(true);
+    try {
+      const ethereum = window.ethereum;
+      if (!ethereum) throw new Error('MetaMask is required to repay QIE.');
+
+      const value = parseQieToWei(repayAmount);
+      const txHash = (await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            value,
+            data: REPAY_NATIVE_SELECTOR,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Repay transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setRepayAmount('');
+      refreshAfterTx();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to repay QIE.';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -117,7 +303,9 @@ function BorrowMarketRow({ market }: { market: (typeof BORROW_MARKETS)[0] }) {
         <div className="hidden sm:grid grid-cols-3 gap-6 text-center">
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Borrow APY</div>
-            <div className="text-sm font-bold text-[#FFB74D]">{isLive ? '—' : '—'}</div>
+            <div className="text-sm font-bold text-[#FFB74D]">
+              {isLive && protocolData ? `${protocolData.qie.borrowAPYPct.toFixed(2)}%` : '-'}
+            </div>
           </div>
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Liq. Threshold</div>
@@ -125,7 +313,9 @@ function BorrowMarketRow({ market }: { market: (typeof BORROW_MARKETS)[0] }) {
           </div>
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Available</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">—</div>
+            <div className="text-sm font-bold text-[#8B9CC8]">
+              {isLive ? `${formatQie(availableToBorrow)} QIE` : '-'}
+            </div>
           </div>
         </div>
 
@@ -167,17 +357,74 @@ function BorrowMarketRow({ market }: { market: (typeof BORROW_MARKETS)[0] }) {
               </h4>
               <div className="bg-[#0D1535] rounded-xl p-4">
                 <p className="text-xs text-[#8B9CC8] mb-1">Borrow Limit</p>
-                <p className="text-lg font-bold text-[#8B9CC8]">—</p>
+                <p className="text-lg font-bold text-white">
+                  {isLive ? `${formatQie(protocolData?.qie.availableBorrowUSD)} QIE` : '-'}
+                </p>
                 <p className="text-xs text-[#8B9CC8] mt-1">
-                  Supply assets first to create borrow limit
+                  {hasDebt
+                    ? `${formatQie(protocolData?.qie.userBorrowQIE)} QIE currently borrowed`
+                    : 'Supply assets first to create borrow limit'}
                 </p>
               </div>
 
               {isLive ? (
-                <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all">
-                  Borrow {market.symbol}
-                  <span className="text-xs ml-1 opacity-70">(Contracts deploying soon)</span>
-                </button>
+                <div className="space-y-3">
+                  <div className="flex items-center rounded-xl border border-white/10 bg-[#0D1535] px-3">
+                    <input
+                      value={borrowAmount}
+                      onChange={(event) => setBorrowAmount(event.target.value)}
+                      placeholder="0.00"
+                      inputMode="decimal"
+                      className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                    />
+                    <button
+                      onClick={() => setBorrowAmount(availableToBorrow)}
+                      className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                    >
+                      Max
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleBorrowNative}
+                    disabled={isSubmitting}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Submitting...' : `Borrow ${market.symbol}`}
+                  </button>
+
+                  {hasDebt && (
+                    <div className="space-y-2 rounded-xl border border-white/5 bg-[#0D1535] p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-[#8B9CC8]">Outstanding debt</p>
+                        <p className="text-sm font-bold text-white">
+                          {formatQie(protocolData?.qie.userBorrowQIE)} QIE
+                        </p>
+                      </div>
+                      <div className="flex items-center rounded-xl border border-white/10 bg-[#131B3D] px-3">
+                        <input
+                          value={repayAmount}
+                          onChange={(event) => setRepayAmount(event.target.value)}
+                          placeholder="0.00"
+                          inputMode="decimal"
+                          className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                        />
+                        <button
+                          onClick={() => setRepayAmount(protocolData?.qie.userBorrowQIE ?? '')}
+                          className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                        >
+                          Max
+                        </button>
+                      </div>
+                      <button
+                        onClick={handleRepayNative}
+                        disabled={isSubmitting}
+                        className="w-full rounded-xl border border-[#00D4FF]/30 px-4 py-2.5 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Repay QIE
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <button
                   disabled
@@ -195,8 +442,13 @@ function BorrowMarketRow({ market }: { market: (typeof BORROW_MARKETS)[0] }) {
 }
 
 export default function BorrowPage() {
-  const { account, isConnected, connect, isConnecting } = useWeb3();
-  const { data: _walletData } = useWalletBalance(account);
+  const { account, isConnected, connect, isConnecting, isCorrectNetwork, switchToQIE } = useWeb3();
+  const { refetch: refetchWallet } = useWalletBalance(account);
+  const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
+  const availableToBorrow = minNumericString(
+    protocolData?.qie.availableBorrowUSD,
+    protocolData?.qie.liquidityQIE
+  );
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -224,18 +476,22 @@ export default function BorrowPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Borrow Limit</p>
-            <p className="text-lg font-bold text-white">—</p>
+            <p className="text-lg font-bold text-white">
+              {formatQie(protocolData?.qie.availableBorrowUSD)} QIE
+            </p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Used</p>
-            <p className="text-lg font-bold text-white">—</p>
+            <p className="text-lg font-bold text-white">
+              {formatQie(protocolData?.qie.userBorrowQIE)} QIE
+            </p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Available</p>
-            <p className="text-lg font-bold text-[#00D4FF]">—</p>
+            <p className="text-lg font-bold text-[#00D4FF]">{formatQie(availableToBorrow)} QIE</p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
-            <HealthBar value={null} />
+            <HealthBar value={protocolData?.qie.healthFactor ?? null} />
           </div>
         </div>
       )}
@@ -262,7 +518,18 @@ export default function BorrowPage() {
         </h2>
         <div className="space-y-3">
           {BORROW_MARKETS.map((m) => (
-            <BorrowMarketRow key={m.symbol} market={m} />
+            <BorrowMarketRow
+              key={m.symbol}
+              market={m}
+              account={account}
+              isConnected={isConnected}
+              isCorrectNetwork={isCorrectNetwork}
+              protocolData={protocolData}
+              connect={connect}
+              switchToQIE={switchToQIE}
+              refetchWallet={refetchWallet}
+              refetchProtocol={refetchProtocol}
+            />
           ))}
         </div>
       </div>

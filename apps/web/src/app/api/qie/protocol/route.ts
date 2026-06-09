@@ -6,6 +6,8 @@ import {
 
 const GET_MARKET_DATA_SELECTOR = '0xa30c302d';
 const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
+const GET_USER_BORROW_BALANCE_SELECTOR = '0x888c21a1';
+const GET_USER_ACCOUNT_DATA_SELECTOR = '0xbf92857c';
 const SECONDS_PER_YEAR = 365n * 24n * 60n * 60n;
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 
@@ -75,11 +77,28 @@ export async function GET(request: Request) {
     const liquidity = totalSupply > totalBorrows ? totalSupply - totalBorrows : 0n;
 
     let userSupply = 0n;
+    let userBorrow = 0n;
+    let totalCollateralUSD = 0n;
+    let totalBorrowUSD = 0n;
+    let availableBorrowUSD = 0n;
+    let healthFactor = 0n;
     if (address) {
       const userSupplyHex = await ethCall(
         `${GET_USER_SUPPLY_BALANCE_SELECTOR}${encodeAddress(address)}${nativeArg}`
       );
       userSupply = decodeWords(userSupplyHex)[0] ?? 0n;
+
+      const userBorrowHex = await ethCall(
+        `${GET_USER_BORROW_BALANCE_SELECTOR}${encodeAddress(address)}${nativeArg}`
+      );
+      userBorrow = decodeWords(userBorrowHex)[0] ?? 0n;
+
+      const accountHex = await ethCall(`${GET_USER_ACCOUNT_DATA_SELECTOR}${encodeAddress(address)}`);
+      const account = decodeWords(accountHex);
+      totalCollateralUSD = account[0] ?? 0n;
+      totalBorrowUSD = account[1] ?? 0n;
+      availableBorrowUSD = account[2] ?? 0n;
+      healthFactor = account[3] ?? 0n;
     }
 
     return Response.json({
@@ -92,6 +111,11 @@ export async function GET(request: Request) {
         totalSupplyQIE: formatUnits(totalSupply),
         totalBorrowsQIE: formatUnits(totalBorrows),
         userSupplyQIE: formatUnits(userSupply),
+        userBorrowQIE: formatUnits(userBorrow),
+        totalCollateralUSD: formatUnits(totalCollateralUSD),
+        totalBorrowUSD: formatUnits(totalBorrowUSD),
+        availableBorrowUSD: formatUnits(availableBorrowUSD),
+        healthFactor: healthFactor === 2n ** 256n - 1n ? null : Number(healthFactor) / 1e18,
       },
     });
   } catch (err) {
