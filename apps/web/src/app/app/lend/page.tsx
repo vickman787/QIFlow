@@ -9,7 +9,9 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 
 const SUPPLY_NATIVE_SELECTOR = '0xa49f20dc';
+const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+const NATIVE_GAS_BUFFER_WEI = 10_000_000_000_000_000n;
 
 function parseQieToWei(value: string) {
   const trimmed = value.trim();
@@ -23,14 +25,45 @@ function parseQieToWei(value: string) {
   const wei = whole + fraction;
 
   if (wei <= 0n) throw new Error('Amount must be greater than 0.');
-  return `0x${wei.toString(16)}`;
+  return wei;
+}
+
+function toHexWei(value: bigint) {
+  return `0x${value.toString(16)}`;
+}
+
+function encodeUint256(value: bigint) {
+  return value.toString(16).padStart(64, '0');
+}
+
+function formatQie(value?: string | null, decimals = 4) {
+  if (!value) return '-';
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '-';
+  return amount.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  });
+}
+
+function getSafeMaxSupplyAmount(balance?: string | null) {
+  if (!balance) return '';
+  try {
+    const balanceWei = parseQieToWei(balance);
+    const maxWei = balanceWei > NATIVE_GAS_BUFFER_WEI ? balanceWei - NATIVE_GAS_BUFFER_WEI : 0n;
+    const whole = maxWei / WEI_PER_QIE;
+    const fraction = (maxWei % WEI_PER_QIE).toString().padStart(18, '0').slice(0, 6);
+    return `${whole}.${fraction}`.replace(/\.?0+$/, '');
+  } catch {
+    return '';
+  }
 }
 
 const MARKETS = [
   {
     symbol: 'QIE',
     name: 'QIE (Native)',
-    icon: '⚡',
+    icon: 'QIE',
     color: '#00D4FF',
     description: 'The native token of QIE Blockchain',
     status: 'live',
@@ -38,7 +71,7 @@ const MARKETS = [
   {
     symbol: 'USDC',
     name: 'USD Coin',
-    icon: '💵',
+    icon: 'USDC',
     color: '#2775CA',
     description: 'Stablecoin pegged to the US Dollar',
     status: 'launching',
@@ -46,7 +79,7 @@ const MARKETS = [
   {
     symbol: 'WBTC',
     name: 'Wrapped Bitcoin',
-    icon: '₿',
+    icon: 'BTC',
     color: '#F7931A',
     description: 'Bitcoin, wrapped for QIE Blockchain',
     status: 'launching',
@@ -71,6 +104,9 @@ interface ProtocolData {
   qie: {
     collateralFactorPct: number;
     supplyAPYPct: number;
+    totalSupplyQIE: string;
+    totalBorrowsQIE: string;
+    utilizationPct: number;
     liquidityQIE: string;
     userSupplyQIE: string;
   };
@@ -114,8 +150,11 @@ function MarketRow({
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isSupplying, setIsSupplying] = useState(false);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
   const isLive = market.status === 'live';
+  const hasSuppliedQie = Number.parseFloat(protocolData?.qie.userSupplyQIE ?? '0') > 0;
 
   const handleSupplyNative = async () => {
     if (!isConnected) {
@@ -142,7 +181,7 @@ function MarketRow({
           {
             from: account,
             to: QIFLOW_CONTRACTS.QIFlowPool,
-            value,
+            value: toHexWei(value),
             data: SUPPLY_NATIVE_SELECTOR,
           },
         ],
@@ -162,6 +201,50 @@ function MarketRow({
     }
   };
 
+  const handleWithdrawNative = async () => {
+    if (!isConnected) {
+      await connect();
+      return;
+    }
+
+    if (!isCorrectNetwork) {
+      await switchToQIE();
+      return;
+    }
+
+    if (!account || !window.ethereum) {
+      toast.error('MetaMask is required to withdraw QIE.');
+      return;
+    }
+
+    setIsWithdrawing(true);
+    try {
+      const value = parseQieToWei(withdrawAmount);
+      const txHash = (await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            data: `${WITHDRAW_NATIVE_SELECTOR}${encodeUint256(value)}`,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Withdraw transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setWithdrawAmount('');
+      window.setTimeout(() => {
+        refetchWallet();
+        refetchProtocol();
+      }, 5000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to withdraw QIE.';
+      toast.error(message);
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
   return (
     <div
       className={`rounded-2xl border transition-all ${open ? 'border-[#00D4FF]/30' : 'border-white/5'} bg-[#131B3D] overflow-hidden`}
@@ -171,7 +254,7 @@ function MarketRow({
         className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-white/2 transition-colors"
       >
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
           style={{ background: `${market.color}20` }}
         >
           {market.icon}
@@ -193,19 +276,19 @@ function MarketRow({
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Supply APY</div>
             <div className="text-sm font-bold text-[#8B9CC8]">
-              {protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-'}
+              {isLive && protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-'}
             </div>
           </div>
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Collateral</div>
             <div className="text-sm font-bold text-[#8B9CC8]">
-              {protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-'}
+              {isLive && protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-'}
             </div>
           </div>
           <div>
             <div className="text-xs text-[#8B9CC8] mb-1">Liquidity</div>
             <div className="text-sm font-bold text-[#8B9CC8]">
-              {protocolData ? `${parseFloat(protocolData.qie.liquidityQIE).toFixed(2)} QIE` : '-'}
+              {isLive && protocolData ? `${formatQie(protocolData.qie.liquidityQIE, 2)} QIE` : '-'}
             </div>
           </div>
         </div>
@@ -227,11 +310,30 @@ function MarketRow({
                 { label: 'Symbol', value: market.symbol },
                 {
                   label: 'Collateral Factor',
-                  value: protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-',
+                  value:
+                    isLive && protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-',
                 },
                 {
                   label: 'Supply APY',
-                  value: protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-',
+                  value: isLive && protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-',
+                },
+                {
+                  label: 'Total Supplied',
+                  value:
+                    isLive && protocolData
+                      ? `${formatQie(protocolData.qie.totalSupplyQIE)} QIE`
+                      : '-',
+                },
+                {
+                  label: 'Total Borrowed',
+                  value:
+                    isLive && protocolData
+                      ? `${formatQie(protocolData.qie.totalBorrowsQIE)} QIE`
+                      : '-',
+                },
+                {
+                  label: 'Utilization',
+                  value: isLive && protocolData ? `${protocolData.qie.utilizationPct.toFixed(2)}%` : '-',
                 },
                 { label: 'Description', value: market.description },
               ].map(({ label, value }) => (
@@ -250,7 +352,7 @@ function MarketRow({
                 <div className="bg-[#0D1535] rounded-xl p-4">
                   <p className="text-xs text-[#8B9CC8] mb-1">Available to Supply</p>
                   <p className="text-lg font-bold text-[#00D4FF]">
-                    {qieBalance ? `${parseFloat(qieBalance).toFixed(4)} QIE` : '—'}
+                    {qieBalance ? `${formatQie(qieBalance)} QIE` : '-'}
                   </p>
                   <div className="mt-4 rounded-xl bg-[#131B3D] p-3">
                     <div className="flex items-center justify-between gap-3 mb-2">
@@ -263,7 +365,7 @@ function MarketRow({
                       {qieBalance && (
                         <button
                           type="button"
-                          onClick={() => setAmount(parseFloat(qieBalance).toFixed(6))}
+                          onClick={() => setAmount(getSafeMaxSupplyAmount(qieBalance))}
                           className="text-xs text-[#00D4FF] hover:text-white transition-colors"
                         >
                           Max
@@ -281,6 +383,48 @@ function MarketRow({
                       />
                       <span className="text-sm font-bold text-[#8B9CC8]">QIE</span>
                     </div>
+                    <p className="mt-2 text-[10px] text-[#8B9CC8]/70">
+                      Max leaves 0.01 QIE for gas.
+                    </p>
+                  </div>
+
+                  <div className="mt-3 rounded-xl bg-[#131B3D] p-3">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] text-[#8B9CC8] font-semibold uppercase tracking-wider">
+                          Supplied
+                        </p>
+                        <p className="text-sm font-bold text-white">
+                          {formatQie(protocolData?.qie.userSupplyQIE)} QIE
+                        </p>
+                      </div>
+                      {hasSuppliedQie && (
+                        <button
+                          type="button"
+                          onClick={() => setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '')}
+                          className="text-xs text-[#00D4FF] hover:text-white transition-colors"
+                        >
+                          Max
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={withdrawAmount}
+                        onChange={(event) => setWithdrawAmount(event.target.value)}
+                        inputMode="decimal"
+                        placeholder="0.00"
+                        className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                      />
+                      <span className="text-sm font-bold text-[#8B9CC8]">QIE</span>
+                    </div>
+                    <button
+                      onClick={handleWithdrawNative}
+                      disabled={isWithdrawing || !withdrawAmount.trim() || !hasSuppliedQie}
+                      className="mt-3 w-full rounded-xl border border-[#00D4FF]/30 px-4 py-2.5 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isWithdrawing ? 'Withdrawing...' : 'Withdraw QIE'}
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -358,14 +502,14 @@ export default function LendPage() {
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">QIE Balance</p>
             <p className="text-lg font-bold text-white">
-              {walletData?.balanceQIE ? `${parseFloat(walletData.balanceQIE).toFixed(4)}` : '—'}{' '}
+              {walletData?.balanceQIE ? formatQie(walletData.balanceQIE) : '-'}{' '}
               <span className="text-sm text-[#8B9CC8]">QIE</span>
             </p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Total Supplied</p>
             <p className="text-lg font-bold text-white">
-              {protocolData ? parseFloat(protocolData.qie.userSupplyQIE).toFixed(4) : '-'}{' '}
+              {formatQie(protocolData?.qie.userSupplyQIE)}{' '}
               <span className="text-sm text-[#8B9CC8]">QIE</span>
             </p>
             <p className="text-xs text-[#8B9CC8]">From QIFlowPool</p>
