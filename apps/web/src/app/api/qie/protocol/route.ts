@@ -8,6 +8,7 @@ const GET_MARKET_DATA_SELECTOR = '0xa30c302d';
 const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
 const GET_USER_BORROW_BALANCE_SELECTOR = '0x888c21a1';
 const GET_USER_ACCOUNT_DATA_SELECTOR = '0xbf92857c';
+const GET_PENDING_REWARDS_SELECTOR = '0xf6ed2017';
 const SECONDS_PER_YEAR = 365n * 24n * 60n * 60n;
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 
@@ -45,10 +46,10 @@ async function rpcCall(method: string, params: unknown[] = []) {
   return data.result as string;
 }
 
-async function ethCall(data: string) {
+async function ethCall(data: string, to: string = QIFLOW_CONTRACTS.QIFlowPool) {
   return rpcCall('eth_call', [
     {
-      to: QIFLOW_CONTRACTS.QIFlowPool,
+      to,
       data,
     },
     'latest',
@@ -82,6 +83,7 @@ export async function GET(request: Request) {
     let totalBorrowUSD = 0n;
     let availableBorrowUSD = 0n;
     let healthFactor = 0n;
+    let pendingRewards = 0n;
     if (address) {
       const userSupplyHex = await ethCall(
         `${GET_USER_SUPPLY_BALANCE_SELECTOR}${encodeAddress(address)}${nativeArg}`
@@ -99,6 +101,12 @@ export async function GET(request: Request) {
       totalBorrowUSD = account[1] ?? 0n;
       availableBorrowUSD = account[2] ?? 0n;
       healthFactor = account[3] ?? 0n;
+
+      const pendingRewardsHex = await ethCall(
+        `${GET_PENDING_REWARDS_SELECTOR}${encodeAddress(address)}`,
+        QIFLOW_CONTRACTS.QIFlowRewards
+      );
+      pendingRewards = decodeWords(pendingRewardsHex)[0] ?? 0n;
     }
 
     return Response.json({
@@ -116,6 +124,7 @@ export async function GET(request: Request) {
         totalBorrowUSD: formatUnits(totalBorrowUSD),
         availableBorrowUSD: formatUnits(availableBorrowUSD),
         healthFactor: healthFactor === 2n ** 256n - 1n ? null : Number(healthFactor) / 1e18,
+        pendingRewardsQIF: formatUnits(pendingRewards),
       },
     });
   } catch (err) {

@@ -18,6 +18,7 @@ import Link from 'next/link';
 
 const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
 const REPAY_NATIVE_SELECTOR = '0xedba8209';
+const CLAIM_REWARDS_SELECTOR = '0x372500ab';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 
 function parseQieToWei(value: string) {
@@ -73,6 +74,7 @@ interface ProtocolData {
     liquidityQIE: string;
     userSupplyQIE: string;
     userBorrowQIE: string;
+    pendingRewardsQIF: string;
   };
 }
 
@@ -123,6 +125,7 @@ export default function PortfolioPage() {
   const [repayAmount, setRepayAmount] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isRepaying, setIsRepaying] = useState(false);
+  const [isClaimingRewards, setIsClaimingRewards] = useState(false);
   const { data: walletData, refetch } = useWalletData(account);
   const { data: stats } = useNetworkStats();
   const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
@@ -168,6 +171,8 @@ export default function PortfolioPage() {
   const hasSuppliedQie = Number.isFinite(suppliedQie) && suppliedQie > 0;
   const borrowedQie = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0');
   const hasBorrowedQie = Number.isFinite(borrowedQie) && borrowedQie > 0;
+  const pendingRewards = Number.parseFloat(protocolData?.qie.pendingRewardsQIF ?? '0');
+  const hasPendingRewards = Number.isFinite(pendingRewards) && pendingRewards > 0;
 
   const handleRefresh = () => {
     refetch();
@@ -250,6 +255,42 @@ export default function PortfolioPage() {
       toast.error(message);
     } finally {
       setIsRepaying(false);
+    }
+  };
+
+  const handleClaimRewards = async () => {
+    if (!isCorrectNetwork) {
+      await switchToQIE();
+      return;
+    }
+
+    if (!account || !window.ethereum) {
+      toast.error('MetaMask is required to claim rewards.');
+      return;
+    }
+
+    setIsClaimingRewards(true);
+    try {
+      const txHash = (await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowRewards,
+            data: CLAIM_REWARDS_SELECTOR,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Claim transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      window.setTimeout(() => {
+        refetchProtocol();
+      }, 5000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to claim rewards.';
+      toast.error(message);
+    } finally {
+      setIsClaimingRewards(false);
     }
   };
 
@@ -530,18 +571,25 @@ export default function PortfolioPage() {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-[#0D1535] rounded-xl p-3">
             <p className="text-xs text-[#8B9CC8] mb-1">Pending Rewards</p>
-            <p className="text-lg font-bold text-[#8B9CC8]">— QIF</p>
+            <p className="text-lg font-bold text-white">
+              {formatQie(protocolData?.qie.pendingRewardsQIF)} QIF
+            </p>
           </div>
           <div className="bg-[#0D1535] rounded-xl p-3">
             <p className="text-xs text-[#8B9CC8] mb-1">Claimed Total</p>
-            <p className="text-lg font-bold text-[#8B9CC8]">— QIF</p>
+            <p className="text-lg font-bold text-[#8B9CC8]">On-chain history</p>
           </div>
         </div>
         <button
-          disabled
-          className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[#8B9CC8] font-bold text-sm cursor-not-allowed"
+          onClick={handleClaimRewards}
+          disabled={!hasPendingRewards || isClaimingRewards}
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-none disabled:bg-white/5 disabled:text-[#8B9CC8] disabled:opacity-60"
         >
-          Claim QIF Rewards (Contracts deploying)
+          {isClaimingRewards
+            ? 'Claiming QIF Rewards...'
+            : hasPendingRewards
+              ? 'Claim QIF Rewards'
+              : 'No QIF Rewards to Claim'}
         </button>
       </div>
 
