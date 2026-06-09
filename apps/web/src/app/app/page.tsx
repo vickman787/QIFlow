@@ -133,8 +133,9 @@ function ActionCard({
 export default function Dashboard() {
   const { account, isConnected, connect, isConnecting, isCorrectNetwork, switchToQIE } = useWeb3();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useNetworkStats();
-  const { data: walletData } = useWalletData(account);
+  const { data: walletData, refetch: refetchWallet } = useWalletData(account);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const copyValue = (label: string, value: string) => {
     navigator.clipboard.writeText(value);
@@ -151,6 +152,18 @@ export default function Dashboard() {
     { label: 'Block Explorer', value: 'https://mainnet.qie.digital/' },
   ];
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetchStats(), refetchWallet()]);
+      toast.success('Dashboard refreshed.');
+    } catch {
+      toast.error('Failed to refresh dashboard.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Page Header */}
@@ -160,11 +173,12 @@ export default function Dashboard() {
           <p className="text-sm text-[#8B9CC8] mt-0.5">QIFlow Protocol — QIE Blockchain</p>
         </div>
         <button
-          onClick={() => refetchStats()}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 text-[#8B9CC8] hover:text-white hover:bg-white/5 text-xs transition-all"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 text-[#8B9CC8] hover:text-white hover:bg-white/5 text-xs transition-all disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 

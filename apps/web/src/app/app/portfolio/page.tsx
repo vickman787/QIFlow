@@ -126,8 +126,9 @@ export default function PortfolioPage() {
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isRepaying, setIsRepaying] = useState(false);
   const [isClaimingRewards, setIsClaimingRewards] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { data: walletData, refetch } = useWalletData(account);
-  const { data: stats } = useNetworkStats();
+  const { data: stats, refetch: refetchStats } = useNetworkStats();
   const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
 
   const copyAddress = () => {
@@ -173,9 +174,16 @@ export default function PortfolioPage() {
   const pendingRewards = Number.parseFloat(protocolData?.qie.pendingRewardsQIF ?? '0');
   const hasPendingRewards = Number.isFinite(pendingRewards) && pendingRewards > 0;
 
-  const handleRefresh = () => {
-    refetch();
-    refetchProtocol();
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetch(), refetchProtocol(), refetchStats()]);
+      toast.success('Portfolio refreshed.');
+    } catch {
+      toast.error('Failed to refresh portfolio.');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleWithdrawNative = async (amount: string) => {
@@ -303,10 +311,11 @@ export default function PortfolioPage() {
         </div>
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 text-[#8B9CC8] hover:text-white hover:bg-white/5 text-xs transition-all"
+          disabled={isRefreshing}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 text-[#8B9CC8] hover:text-white hover:bg-white/5 text-xs transition-all disabled:cursor-not-allowed disabled:opacity-60"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </button>
       </div>
 
