@@ -165,8 +165,7 @@ export default function PortfolioPage() {
   }
 
   const shortAddress = account ? `${account.slice(0, 8)}...${account.slice(-6)}` : '';
-  const networkName =
-    chainId === 1990 ? 'QIE Mainnet' : chainId === 1983 ? 'QIE Testnet' : `Chain ${chainId}`;
+  const networkName = chainId === 1990 ? 'QIE Mainnet' : `Chain ${chainId}`;
   const suppliedQie = Number.parseFloat(protocolData?.qie.userSupplyQIE ?? '0');
   const hasSuppliedQie = Number.isFinite(suppliedQie) && suppliedQie > 0;
   const borrowedQie = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0');

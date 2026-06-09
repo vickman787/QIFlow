@@ -19,14 +19,6 @@ export const QIE_MAINNET = {
   blockExplorerUrls: ['https://mainnet.qie.digital/'],
 };
 
-export const QIE_TESTNET = {
-  chainId: '0x7BF', // 1983
-  chainName: 'QIE Testnet',
-  nativeCurrency: { name: 'QIE', symbol: 'QIE', decimals: 18 },
-  rpcUrls: ['https://rpc1testnet.qie.digital/'],
-  blockExplorerUrls: ['https://testnet.qie.digital/'],
-};
-
 function getEthereum() {
   if (typeof window === 'undefined') return null;
   return window.ethereum ?? null;
@@ -54,7 +46,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [qieBalance, setQieBalance] = useState<string | null>(null);
 
   const isConnected = !!account;
-  const isCorrectNetwork = chainId === 1990 || chainId === 1983;
+  const isCorrectNetwork = chainId === 1990;
 
   const fetchBalance = useCallback(async (addr: string) => {
     try {
@@ -82,7 +74,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       setAccount(accounts[0]);
       setChainId(currentChain);
 
-      if (currentChain !== 1990 && currentChain !== 1983) {
+      if (currentChain !== 1990) {
         toast.info('Please switch to QIE Mainnet for the best experience.');
       } else {
         await fetchBalance(accounts[0]);
@@ -168,7 +160,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         innerEth.request({ method: 'eth_chainId' }).then((rawHex) => {
           const id = parseInt(rawHex as string, 16);
           setChainId(id);
-          if (id === 1990 || id === 1983) fetchBalance(accounts[0]);
+          if (id === 1990) fetchBalance(accounts[0]);
         });
       }
     });

@@ -1,7 +1,5 @@
 import { QIE_MAINNET_RPC } from '@/lib/qiflow-contracts';
 
-const QIE_TESTNET_RPC = 'https://rpc1testnet.qie.digital/';
-
 async function rpcCall(rpc: string, method: string, params: unknown[] = []) {
   const res = await fetch(rpc, {
     method: 'POST',
@@ -27,10 +25,6 @@ export async function GET() {
     const gasPriceGwei = gasPriceHex ? (parseInt(gasPriceHex, 16) / 1e9).toFixed(4) : null;
     const chainId = chainIdHex ? parseInt(chainIdHex, 16) : null;
 
-    // Also ping testnet
-    const testnetBlockHex = await rpcCall(QIE_TESTNET_RPC, 'eth_blockNumber').catch(() => null);
-    const testnetBlock = testnetBlockHex ? parseInt(testnetBlockHex, 16) : null;
-
     return Response.json({
       mainnet: {
         rpc: QIE_MAINNET_RPC,
@@ -42,13 +36,6 @@ export async function GET() {
         decimals: 18,
         explorerUrl: 'https://mainnet.qie.digital/',
         online: blockNumber !== null,
-      },
-      testnet: {
-        rpc: QIE_TESTNET_RPC,
-        chainId: 1983,
-        blockNumber: testnetBlock,
-        explorerUrl: 'https://testnet.qie.digital/',
-        online: testnetBlock !== null,
       },
     });
   } catch (err) {

@@ -69,30 +69,13 @@ const setupSteps = [
     description: 'Run 25+ tests on local Hardhat network (no tokens needed)',
   },
   {
-    title: 'Get Testnet Tokens',
-    command: 'Visit https://www.qie.digital/faucet',
-    description: 'Connect MetaMask with QIE Testnet (Chain ID 1983)',
-  },
-  {
-    title: 'Deploy to Testnet',
-    command: 'npm run deploy:testnet',
-    description: 'Deploy all contracts to QIE Testnet',
-  },
-  {
     title: 'Deploy to Mainnet',
     command: 'npm run deploy:mainnet',
-    description: 'After testnet works, deploy to QIE Mainnet (Chain ID 1990)',
+    description: 'Deploy all contracts to QIE Mainnet (Chain ID 1990)',
   },
 ];
 
 const networkInfo = [
-  {
-    name: 'QIE Testnet',
-    chainId: 1983,
-    rpc: 'https://rpc1testnet.qie.digital/',
-    explorer: 'https://testnet.qie.digital/',
-    faucet: 'https://www.qie.digital/faucet',
-  },
   {
     name: 'QIE Mainnet',
     chainId: 1990,
