@@ -3,8 +3,28 @@
 import React, { useState } from 'react';
 import { useWeb3 } from '@/context/Web3Context';
 import { useQuery } from '@tanstack/react-query';
+import { QIFLOW_CONTRACTS } from '@/lib/qiflow-contracts';
 import { Wallet, ArrowRight, Info, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
+
+const SUPPLY_NATIVE_SELECTOR = '0xa49f20dc';
+const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+
+function parseQieToWei(value: string) {
+  const trimmed = value.trim();
+  if (!/^\d+(\.\d{0,18})?$/.test(trimmed)) {
+    throw new Error('Enter a valid QIE amount.');
+  }
+
+  const [wholePart, fractionPart = ''] = trimmed.split('.');
+  const whole = BigInt(wholePart || '0') * WEI_PER_QIE;
+  const fraction = BigInt(fractionPart.padEnd(18, '0') || '0');
+  const wei = whole + fraction;
+
+  if (wei <= 0n) throw new Error('Amount must be greater than 0.');
+  return `0x${wei.toString(16)}`;
+}
 
 const MARKETS = [
   {
@@ -49,13 +69,69 @@ function useWalletBalance(address: string | null) {
 
 function MarketRow({
   market,
+  account,
+  isConnected,
+  isCorrectNetwork,
   qieBalance,
+  connect,
+  switchToQIE,
+  refetchWallet,
 }: {
   market: (typeof MARKETS)[0];
+  account: string | null;
+  isConnected: boolean;
+  isCorrectNetwork: boolean;
   qieBalance?: string | null;
+  connect: () => Promise<void>;
+  switchToQIE: () => Promise<void>;
+  refetchWallet: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState('');
+  const [isSupplying, setIsSupplying] = useState(false);
   const isLive = market.status === 'live';
+
+  const handleSupplyNative = async () => {
+    if (!isConnected) {
+      await connect();
+      return;
+    }
+
+    if (!isCorrectNetwork) {
+      await switchToQIE();
+      return;
+    }
+
+    if (!account || !window.ethereum) {
+      toast.error('MetaMask is required to supply QIE.');
+      return;
+    }
+
+    setIsSupplying(true);
+    try {
+      const value = parseQieToWei(amount);
+      const txHash = (await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            value,
+            data: SUPPLY_NATIVE_SELECTOR,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Supply transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setAmount('');
+      window.setTimeout(refetchWallet, 5000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to supply QIE.';
+      toast.error(message);
+    } finally {
+      setIsSupplying(false);
+    }
+  };
 
   return (
     <div
@@ -135,6 +211,36 @@ function MarketRow({
                   <p className="text-lg font-bold text-[#00D4FF]">
                     {qieBalance ? `${parseFloat(qieBalance).toFixed(4)} QIE` : '—'}
                   </p>
+                  <div className="mt-4 rounded-xl bg-[#131B3D] p-3">
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <label
+                        htmlFor="qie-supply-amount"
+                        className="text-[10px] text-[#8B9CC8] font-semibold uppercase tracking-wider"
+                      >
+                        Amount
+                      </label>
+                      {qieBalance && (
+                        <button
+                          type="button"
+                          onClick={() => setAmount(parseFloat(qieBalance).toFixed(6))}
+                          className="text-xs text-[#00D4FF] hover:text-white transition-colors"
+                        >
+                          Max
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="qie-supply-amount"
+                        value={amount}
+                        onChange={(event) => setAmount(event.target.value)}
+                        inputMode="decimal"
+                        placeholder="0.00"
+                        className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                      />
+                      <span className="text-sm font-bold text-[#8B9CC8]">QIE</span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="bg-[#0D1535] rounded-xl p-4 text-center">
@@ -143,9 +249,18 @@ function MarketRow({
               )}
 
               {isLive ? (
-                <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all">
-                  Supply {market.symbol}
-                  <span className="text-xs ml-1 opacity-70">(Contracts deploying soon)</span>
+                <button
+                  onClick={handleSupplyNative}
+                  disabled={isSupplying || (isConnected && isCorrectNetwork && !amount.trim())}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSupplying
+                    ? 'Confirming...'
+                    : !isConnected
+                      ? 'Connect Wallet'
+                      : !isCorrectNetwork
+                        ? 'Switch to QIE Mainnet'
+                        : `Supply ${market.symbol}`}
                 </button>
               ) : (
                 <button
@@ -164,8 +279,15 @@ function MarketRow({
 }
 
 export default function LendPage() {
-  const { account, isConnected, connect, isConnecting } = useWeb3();
-  const { data: walletData } = useWalletBalance(account);
+  const {
+    account,
+    isConnected,
+    isCorrectNetwork,
+    connect,
+    isConnecting,
+    switchToQIE,
+  } = useWeb3();
+  const { data: walletData, refetch: refetchWallet } = useWalletBalance(account);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -218,7 +340,17 @@ export default function LendPage() {
         </h2>
         <div className="space-y-3">
           {MARKETS.map((m) => (
-            <MarketRow key={m.symbol} market={m} qieBalance={walletData?.balanceQIE} />
+            <MarketRow
+              key={m.symbol}
+              market={m}
+              account={account}
+              isConnected={isConnected}
+              isCorrectNetwork={isCorrectNetwork}
+              qieBalance={walletData?.balanceQIE}
+              connect={connect}
+              switchToQIE={switchToQIE}
+              refetchWallet={() => refetchWallet()}
+            />
           ))}
         </div>
       </div>
