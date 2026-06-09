@@ -28,7 +28,6 @@ interface QieStats {
     online: boolean;
     blockTime: number;
   };
-  testnet: { blockNumber: number | null; online: boolean };
 }
 
 function useNetworkStats() {
@@ -228,15 +227,6 @@ export default function Dashboard() {
             value="~3.6s"
             sub="Proof of Authority"
             icon={<Globe className="w-5 h-5" />}
-          />
-          <StatCard
-            label="Testnet Block"
-            value={
-              stats?.testnet.blockNumber ? `#${stats.testnet.blockNumber.toLocaleString()}` : '—'
-            }
-            sub={stats?.testnet.online ? 'Online' : 'Connecting...'}
-            icon={<Activity className="w-5 h-5" />}
-            live={stats?.testnet.online}
           />
         </div>
       </div>

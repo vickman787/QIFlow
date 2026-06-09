@@ -24,10 +24,6 @@ interface QieStats {
     online: boolean;
     blockTime: number;
   };
-  testnet: {
-    blockNumber: number | null;
-    online: boolean;
-  };
 }
 
 function useNetworkStats() {
