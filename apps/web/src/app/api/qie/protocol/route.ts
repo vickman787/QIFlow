@@ -9,6 +9,7 @@ const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
 const GET_USER_BORROW_BALANCE_SELECTOR = '0x888c21a1';
 const GET_USER_ACCOUNT_DATA_SELECTOR = '0xbf92857c';
 const GET_PENDING_REWARDS_SELECTOR = '0xf6ed2017';
+const QIF_TOKEN_SELECTOR = '0x911815a0';
 const REWARDS_CLAIMED_TOPIC =
   '0xfc30cddea38e2bf4d6ea7d3f9ed3b6ad7f176419f4963bd81318067a4aee73fe';
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
@@ -26,6 +27,11 @@ function decodeWords(data: string) {
     words.push(BigInt(`0x${hex.slice(i, i + 64)}`));
   }
   return words;
+}
+
+function decodeAddress(data: string) {
+  const word = data.replace(/^0x/, '').slice(-40);
+  return `0x${word}`;
 }
 
 function formatUnits(value: bigint, decimals = 18, precision = 6) {
@@ -71,12 +77,22 @@ interface LogFilter {
 }
 
 async function getLogs(filter: LogFilter) {
+  const latestHex = await rpcCall('eth_blockNumber');
+  const latest = BigInt(latestHex);
+  const fallbackStart = latest > 1_000_000n ? latest - 1_000_000n : 0n;
+
   try {
-    return (await rpcCall('eth_getLogs', [filter])) as unknown as RpcLog[];
+    const logs = (await rpcCall('eth_getLogs', [filter])) as unknown as RpcLog[];
+    if (logs.length > 0 || filter.fromBlock !== '0x0') return logs;
+
+    return (await rpcCall('eth_getLogs', [
+      {
+        ...filter,
+        fromBlock: `0x${fallbackStart.toString(16)}`,
+        toBlock: 'latest',
+      },
+    ])) as unknown as RpcLog[];
   } catch {
-    const latestHex = await rpcCall('eth_blockNumber');
-    const latest = BigInt(latestHex);
-    const fallbackStart = latest > 500_000n ? latest - 500_000n : 0n;
     return (await rpcCall('eth_getLogs', [
       {
         ...filter,
@@ -98,9 +114,14 @@ async function getClaimedRewardsFromRewardEvents(userAddress: string) {
   return logs.reduce((total, log) => total + BigInt(log.data), 0n);
 }
 
-async function getClaimedRewardsFromTokenTransfers(userAddress: string) {
+async function getRewardTokenAddress() {
+  const tokenHex = await ethCall(QIF_TOKEN_SELECTOR, QIFLOW_CONTRACTS.QIFlowRewards);
+  return decodeAddress(tokenHex);
+}
+
+async function getClaimedRewardsFromTokenTransfers(userAddress: string, tokenAddress: string) {
   const logs = await getLogs({
-    address: QIFLOW_CONTRACTS.QIFlowToken,
+    address: tokenAddress,
     fromBlock: '0x0',
     toBlock: 'latest',
     topics: [
@@ -167,9 +188,10 @@ export async function GET(request: Request) {
       pendingRewards = decodeWords(pendingRewardsHex)[0] ?? 0n;
 
       try {
+        const rewardTokenAddress = await getRewardTokenAddress();
         const [rewardEventTotal, tokenTransferTotal] = await Promise.all([
           getClaimedRewardsFromRewardEvents(address),
-          getClaimedRewardsFromTokenTransfers(address),
+          getClaimedRewardsFromTokenTransfers(address, rewardTokenAddress),
         ]);
         claimedRewards =
           tokenTransferTotal > rewardEventTotal ? tokenTransferTotal : rewardEventTotal;
