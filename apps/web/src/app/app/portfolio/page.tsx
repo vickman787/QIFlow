@@ -20,6 +20,7 @@ const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
 const REPAY_NATIVE_SELECTOR = '0xedba8209';
 const CLAIM_REWARDS_SELECTOR = '0x372500ab';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+const MAX_UINT256 = (1n << 256n) - 1n;
 
 function parseQieToWei(value: string) {
   const trimmed = value.trim();
@@ -105,6 +106,9 @@ function formatQie(value?: string | null, decimals = 4) {
   if (!value) return '-';
   const amount = Number.parseFloat(value);
   if (!Number.isFinite(amount)) return '-';
+  if (amount > 0 && amount < 10 ** -decimals) {
+    return `< 0.${'0'.repeat(Math.max(0, decimals - 1))}1`;
+  }
   return amount.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
@@ -129,6 +133,7 @@ export default function PortfolioPage() {
     switchToQIE,
   } = useWeb3();
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawAll, setWithdrawAll] = useState(false);
   const [repayAmount, setRepayAmount] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isRepaying, setIsRepaying] = useState(false);
@@ -193,7 +198,7 @@ export default function PortfolioPage() {
     }
   };
 
-  const handleWithdrawNative = async (amount: string) => {
+  const handleWithdrawNative = async (amount: string, all = false) => {
     if (!isCorrectNetwork) {
       await switchToQIE();
       return;
@@ -206,7 +211,7 @@ export default function PortfolioPage() {
 
     setIsWithdrawing(true);
     try {
-      const wei = parseQieToWei(amount);
+      const wei = all ? MAX_UINT256 : parseQieToWei(amount);
       const txHash = (await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [
@@ -220,6 +225,7 @@ export default function PortfolioPage() {
 
       toast.success(`Withdraw transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
       setWithdrawAmount('');
+      setWithdrawAll(false);
       window.setTimeout(() => {
         refetch();
         refetchProtocol();
@@ -469,20 +475,26 @@ export default function PortfolioPage() {
               <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-[#0B0A07] px-3">
                 <input
                   value={withdrawAmount}
-                  onChange={(event) => setWithdrawAmount(event.target.value)}
+                  onChange={(event) => {
+                    setWithdrawAmount(event.target.value);
+                    setWithdrawAll(false);
+                  }}
                   placeholder="0.00"
                   inputMode="decimal"
                   className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold text-white outline-none placeholder:text-[#B8B2A6]/50"
                 />
                 <button
-                  onClick={() => setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '')}
+                  onClick={() => {
+                    setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '');
+                    setWithdrawAll(true);
+                  }}
                   className="rounded-lg px-2 py-1 text-xs font-bold text-[#F6C453] hover:bg-[#F6C453]/10"
                 >
                   Max
                 </button>
               </div>
               <button
-                onClick={() => handleWithdrawNative(withdrawAmount)}
+                onClick={() => handleWithdrawNative(withdrawAmount, withdrawAll)}
                 disabled={isWithdrawing}
                 className="rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >

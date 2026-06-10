@@ -12,6 +12,7 @@ const SUPPLY_NATIVE_SELECTOR = '0xa49f20dc';
 const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 const NATIVE_GAS_BUFFER_WEI = 10_000_000_000_000_000n;
+const MAX_UINT256 = (1n << 256n) - 1n;
 
 function parseQieToWei(value: string) {
   const trimmed = value.trim();
@@ -40,6 +41,9 @@ function formatQie(value?: string | null, decimals = 4) {
   if (!value) return '-';
   const amount = Number.parseFloat(value);
   if (!Number.isFinite(amount)) return '-';
+  if (amount > 0 && amount < 10 ** -decimals) {
+    return `< 0.${'0'.repeat(Math.max(0, decimals - 1))}1`;
+  }
   return amount.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
@@ -152,6 +156,7 @@ function MarketRow({
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawAll, setWithdrawAll] = useState(false);
   const [isSupplying, setIsSupplying] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const isLive = market.status === 'live';
@@ -221,7 +226,7 @@ function MarketRow({
 
     setIsWithdrawing(true);
     try {
-      const value = parseQieToWei(withdrawAmount);
+      const value = withdrawAll ? MAX_UINT256 : parseQieToWei(withdrawAmount);
       const txHash = (await window.ethereum.request({
         method: 'eth_sendTransaction',
         params: [
@@ -235,6 +240,7 @@ function MarketRow({
 
       toast.success(`Withdraw transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
       setWithdrawAmount('');
+      setWithdrawAll(false);
       window.setTimeout(() => {
         refetchWallet();
         refetchProtocol();
@@ -409,6 +415,7 @@ function MarketRow({
                               return;
                             }
                             setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '');
+                            setWithdrawAll(true);
                           }}
                           className="text-xs text-[#F6C453] hover:text-white transition-colors"
                         >
@@ -419,7 +426,10 @@ function MarketRow({
                     <div className="flex items-center gap-2">
                       <input
                         value={withdrawAmount}
-                        onChange={(event) => setWithdrawAmount(event.target.value)}
+                        onChange={(event) => {
+                          setWithdrawAmount(event.target.value);
+                          setWithdrawAll(false);
+                        }}
                         inputMode="decimal"
                         placeholder="0.00"
                         className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#B8B2A6]/50"
