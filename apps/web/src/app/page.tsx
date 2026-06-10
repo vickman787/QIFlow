@@ -123,25 +123,6 @@ export default function QIFlowLanding() {
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[#B8B2A6]">
-            <a
-              href="https://docs.qie.digital/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Docs
-            </a>
-            <a
-              href="https://mainnet.qie.digital/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Explorer
-            </a>
-          </div>
-
           <div className="flex items-center gap-3">
             {/* Live network indicator */}
             {stats && (
