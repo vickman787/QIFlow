@@ -140,14 +140,6 @@ export default function QIFlowLanding() {
             >
               Explorer
             </a>
-            <a
-              href="https://www.qiewallet.me/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              QIE Wallet
-            </a>
           </div>
 
           <div className="flex items-center gap-3">
@@ -344,14 +336,6 @@ export default function QIFlowLanding() {
                 >
                   Launch QIFlow App
                 </Link>
-                <a
-                  href="https://www.qiewallet.me/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 py-4 rounded-xl border border-white/10 bg-white/5 text-white font-bold hover:bg-white/10 transition-all"
-                >
-                  Get QIE Wallet
-                </a>
               </div>
             </div>
           </div>

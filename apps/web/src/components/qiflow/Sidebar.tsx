@@ -21,7 +21,6 @@ const nav = [
 const external = [
   { href: 'https://mainnet.qie.digital/', label: 'Explorer' },
   { href: 'https://docs.qie.digital/', label: 'Docs' },
-  { href: 'https://www.qiewallet.me/', label: 'QIE Wallet' },
 ];
 
 export default function Sidebar() {

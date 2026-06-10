@@ -623,16 +623,6 @@ export default function PortfolioPage() {
           <ExternalLink className="w-3.5 h-3.5" />
           View on QIE Explorer
         </a>
-        <span className="text-[#B8B2A6]">·</span>
-        <a
-          href="https://www.qiewallet.me/blogs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#B8B2A6] hover:text-[#F6C453] transition-colors"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          QIE Wallet Blog
-        </a>
       </div>
     </div>
   );
