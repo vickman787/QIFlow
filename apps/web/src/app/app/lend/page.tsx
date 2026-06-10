@@ -64,7 +64,7 @@ const MARKETS = [
     symbol: 'QIE',
     name: 'QIE (Native)',
     icon: 'QIE',
-    color: '#00D4FF',
+    color: '#F6C453',
     description: 'The native token of QIE Blockchain',
     status: 'live',
   },
@@ -249,7 +249,7 @@ function MarketRow({
 
   return (
     <div
-      className={`rounded-2xl border transition-all ${open ? 'border-[#00D4FF]/30' : 'border-white/5'} bg-[#131B3D] overflow-hidden`}
+      className={`rounded-2xl border transition-all ${open ? 'border-[#F6C453]/30' : 'border-white/5'} bg-[#131B3D] overflow-hidden`}
     >
       <button
         onClick={() => setOpen((o) => !o)}
@@ -353,7 +353,7 @@ function MarketRow({
               {market.symbol === 'QIE' ? (
                 <div className="bg-[#0D1535] rounded-xl p-4">
                   <p className="text-xs text-[#8B9CC8] mb-1">Available to Supply</p>
-                  <p className="text-lg font-bold text-[#00D4FF]">
+                  <p className="text-lg font-bold text-[#F6C453]">
                     {qieBalance ? `${formatQie(qieBalance)} QIE` : '-'}
                   </p>
                   <div className="mt-4 rounded-xl bg-[#131B3D] p-3">
@@ -368,7 +368,7 @@ function MarketRow({
                         <button
                           type="button"
                           onClick={() => setAmount(getSafeMaxSupplyAmount(qieBalance))}
-                          className="text-xs text-[#00D4FF] hover:text-white transition-colors"
+                          className="text-xs text-[#F6C453] hover:text-white transition-colors"
                         >
                           Max
                         </button>
@@ -410,7 +410,7 @@ function MarketRow({
                             }
                             setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '');
                           }}
-                          className="text-xs text-[#00D4FF] hover:text-white transition-colors"
+                          className="text-xs text-[#F6C453] hover:text-white transition-colors"
                         >
                           Max
                         </button>
@@ -429,7 +429,7 @@ function MarketRow({
                     <button
                       onClick={handleWithdrawNative}
                       disabled={isWithdrawing || !withdrawAmount.trim() || !hasSuppliedQie || hasBorrowedQie}
-                      className="mt-3 w-full rounded-xl border border-[#00D4FF]/30 px-4 py-2.5 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="mt-3 w-full rounded-xl border border-[#F6C453]/30 px-4 py-2.5 text-sm font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {isWithdrawing
                         ? 'Withdrawing...'
@@ -454,7 +454,7 @@ function MarketRow({
                 <button
                   onClick={handleSupplyNative}
                   disabled={isSupplying || (isConnected && isCorrectNetwork && !amount.trim())}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm hover:opacity-90 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isSupplying
                     ? 'Confirming...'
@@ -501,8 +501,8 @@ export default function LendPage() {
       </div>
 
       {/* Info Banner */}
-      <div className="flex items-start gap-3 p-4 rounded-2xl bg-[#00D4FF]/5 border border-[#00D4FF]/15">
-        <Info className="w-5 h-5 text-[#00D4FF] flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 rounded-2xl bg-[#F6C453]/5 border border-[#F6C453]/15">
+        <Info className="w-5 h-5 text-[#F6C453] flex-shrink-0 mt-0.5" />
         <div className="text-sm">
           <p className="text-white font-semibold mb-1">How Lending Works</p>
           <p className="text-[#8B9CC8] text-xs leading-relaxed">
@@ -568,7 +568,7 @@ export default function LendPage() {
       {/* Connect Prompt */}
       {!isConnected && (
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-8 text-center">
-          <Wallet className="w-10 h-10 mx-auto text-[#7B2FBE] mb-3" />
+          <Wallet className="w-10 h-10 mx-auto text-[#B7791F] mb-3" />
           <h3 className="text-base font-bold text-white mb-2">Connect to Start Lending</h3>
           <p className="text-[#8B9CC8] text-sm mb-5 max-w-xs mx-auto">
             Connect your MetaMask wallet with QIE Mainnet to supply assets and earn yield.
@@ -576,7 +576,7 @@ export default function LendPage() {
           <button
             onClick={connect}
             disabled={isConnecting}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm hover:opacity-90 transition-all"
           >
             <Wallet className="w-4 h-4" />
             {isConnecting ? 'Connecting…' : 'Connect Wallet'}
@@ -590,7 +590,7 @@ export default function LendPage() {
           href="https://mainnet.qie.digital/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Explorer
@@ -600,7 +600,7 @@ export default function LendPage() {
           href="https://docs.qie.digital/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Docs
@@ -608,7 +608,7 @@ export default function LendPage() {
         <span className="text-[#8B9CC8]">·</span>
         <Link
           href="/app/borrow"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           Go to Borrow <ArrowRight className="w-3.5 h-3.5" />
         </Link>

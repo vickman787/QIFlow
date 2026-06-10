@@ -97,15 +97,15 @@ export default function ContractsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#120F08] via-[#2A1A06] to-[#0B1026] text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-purple-500/20 rounded-full border border-purple-500/30">
-            <FileCode className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-purple-300">Smart Contracts</span>
+          <div className="inline-flex items-center gap-2 mb-4 px-4 py-2 bg-[#B7791F]/20 rounded-full border border-[#B7791F]/30">
+            <FileCode className="w-4 h-4 text-[#F6C453]" />
+            <span className="text-sm text-[#FFD166]">Smart Contracts</span>
           </div>
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#FFD166] to-[#F59E0B] bg-clip-text text-transparent">
             QIFlow Protocol Contracts
           </h1>
           <p className="text-xl text-slate-300 max-w-2xl mx-auto">
@@ -141,7 +141,7 @@ export default function ContractsPage() {
                         href={`${QIE_MAINNET_EXPLORER}/address/${address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="break-all font-mono text-xs text-purple-300 hover:text-purple-200"
+                        className="break-all font-mono text-xs text-[#FFD166] hover:text-[#FFE2A3]"
                       >
                         {address}
                       </a>
@@ -167,7 +167,7 @@ export default function ContractsPage() {
               {contracts.map((contract, idx) => (
                 <Card
                   key={idx}
-                  className="bg-slate-900/50 border-slate-800 hover:border-purple-500/50 transition-all"
+                  className="bg-slate-900/50 border-slate-800 hover:border-[#B7791F]/50 transition-all"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -180,9 +180,9 @@ export default function ContractsPage() {
                       <Badge
                         className={
                           contract.category === 'core'
-                            ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+                            ? 'bg-[#B7791F]/20 text-[#FFD166] border-[#B7791F]/30'
                             : contract.category === 'token'
-                              ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                              ? 'bg-[#F6C453]/20 text-[#FFD166] border-[#F6C453]/30'
                               : contract.category === 'rewards'
                                 ? 'bg-green-500/20 text-green-300 border-green-500/30'
                                 : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
@@ -199,7 +199,7 @@ export default function ContractsPage() {
               ))}
             </div>
 
-            <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-500/30">
+            <Card className="bg-gradient-to-br from-[#8A5A12]/30 to-[#F59E0B]/20 border-[#B7791F]/30">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <TestTube className="w-5 h-5" />
@@ -209,15 +209,15 @@ export default function ContractsPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-400">25+</div>
+                    <div className="text-3xl font-bold text-[#F6C453]">25+</div>
                     <div className="text-sm text-slate-400">Test Cases</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-pink-400">6</div>
+                    <div className="text-3xl font-bold text-[#F59E0B]">6</div>
                     <div className="text-sm text-slate-400">Contracts</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-400">1,369</div>
+                    <div className="text-3xl font-bold text-[#F6C453]">1,369</div>
                     <div className="text-sm text-slate-400">Total Lines</div>
                   </div>
                   <div className="text-center">
@@ -239,14 +239,14 @@ export default function ContractsPage() {
               <Card key={idx} className="bg-slate-900/50 border-slate-800">
                 <CardHeader>
                   <div className="flex items-start gap-4">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 text-purple-400 font-bold border border-purple-500/30 flex-shrink-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#B7791F]/20 text-[#F6C453] font-bold border border-[#B7791F]/30 flex-shrink-0">
                       {idx + 1}
                     </div>
                     <div className="flex-1">
                       <CardTitle className="text-white mb-2">{step.title}</CardTitle>
                       <p className="text-slate-400 text-sm mb-3">{step.description}</p>
                       <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
-                        <code className="flex-1 text-sm text-purple-300 font-mono">
+                        <code className="flex-1 text-sm text-[#FFD166] font-mono">
                           {step.command}
                         </code>
                         <Button
@@ -278,7 +278,7 @@ export default function ContractsPage() {
               <CardContent className="space-y-3">
                 <p className="text-slate-300">
                   After deployment, addresses are automatically saved to{' '}
-                  <code className="text-purple-300 bg-slate-950/50 px-2 py-1 rounded">
+                  <code className="text-[#FFD166] bg-slate-950/50 px-2 py-1 rounded">
                     deployedAddresses.json
                   </code>
                 </p>
@@ -307,7 +307,7 @@ export default function ContractsPage() {
                     <div>
                       <div className="text-sm text-slate-400 mb-1">RPC Endpoint</div>
                       <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
-                        <code className="flex-1 text-sm text-purple-300 font-mono">
+                        <code className="flex-1 text-sm text-[#FFD166] font-mono">
                           {network.rpc}
                         </code>
                         <Button
@@ -327,7 +327,7 @@ export default function ContractsPage() {
                     <div>
                       <div className="text-sm text-slate-400 mb-1">Block Explorer</div>
                       <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
-                        <code className="flex-1 text-sm text-blue-300 font-mono">
+                        <code className="flex-1 text-sm text-[#FFD166] font-mono">
                           {network.explorer}
                         </code>
                         <Button
@@ -368,8 +368,8 @@ export default function ContractsPage() {
                   </div>
 
                   {network.faucet && (
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                      <p className="text-sm text-blue-300">
+                    <div className="bg-[#F6C453]/10 border border-[#F6C453]/30 rounded-lg p-4">
+                      <p className="text-sm text-[#FFD166]">
                         💡 <strong>Tip:</strong> Connect MetaMask to {network.name} and request
                         tokens from the faucet before deploying.
                       </p>
@@ -390,7 +390,7 @@ export default function ContractsPage() {
                   <li>Enter the RPC URL and Chain ID from above</li>
                   <li>
                     Set currency symbol to{' '}
-                    <code className="text-purple-300 bg-slate-950/50 px-2 py-1 rounded">QIE</code>
+                    <code className="text-[#FFD166] bg-slate-950/50 px-2 py-1 rounded">QIE</code>
                   </li>
                   <li>Save and switch to the new network</li>
                 </ol>

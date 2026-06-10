@@ -73,15 +73,15 @@ function StatCard({
 }) {
   return (
     <div
-      className={`rounded-2xl p-5 border ${gradient ? 'bg-gradient-to-br from-[#7B2FBE]/20 to-[#00D4FF]/10 border-[#00D4FF]/20' : 'bg-[#131B3D] border-white/5'}`}
+      className={`rounded-2xl p-5 border ${gradient ? 'bg-gradient-to-br from-[#B7791F]/20 to-[#F6C453]/10 border-[#F6C453]/20' : 'bg-[#131B3D] border-white/5'}`}
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[#00D4FF]">
+        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[#F6C453]">
           {icon}
         </div>
         {live && (
-          <span className="flex items-center gap-1 text-xs text-[#00D4FF] font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00D4FF]" />
+          <span className="flex items-center gap-1 text-xs text-[#F6C453] font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#F6C453]" />
             LIVE
           </span>
         )}
@@ -109,23 +109,23 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="group bg-[#131B3D] border border-white/5 rounded-2xl p-5 hover:border-[#00D4FF]/20 transition-all flex items-start gap-4"
+      className="group bg-[#131B3D] border border-white/5 rounded-2xl p-5 hover:border-[#F6C453]/20 transition-all flex items-start gap-4"
     >
-      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7B2FBE]/20 to-[#00D4FF]/20 flex items-center justify-center text-[#00D4FF] flex-shrink-0 group-hover:scale-110 transition-transform">
+      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#B7791F]/20 to-[#F6C453]/20 flex items-center justify-center text-[#F6C453] flex-shrink-0 group-hover:scale-110 transition-transform">
         {icon}
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <h3 className="text-sm font-bold text-white">{title}</h3>
           {badge && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#00D4FF]/10 text-[#00D4FF] font-semibold">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F6C453]/10 text-[#F6C453] font-semibold">
               {badge}
             </span>
           )}
         </div>
         <p className="text-xs text-[#8B9CC8] leading-relaxed">{desc}</p>
       </div>
-      <ArrowRight className="w-4 h-4 text-[#8B9CC8] group-hover:text-[#00D4FF] transition-colors flex-shrink-0 mt-1" />
+      <ArrowRight className="w-4 h-4 text-[#8B9CC8] group-hover:text-[#F6C453] transition-colors flex-shrink-0 mt-1" />
     </Link>
   );
 }
@@ -210,8 +210,8 @@ export default function Dashboard() {
             Live Network
           </h2>
           {stats?.mainnet.online && (
-            <span className="flex items-center gap-1 text-xs text-[#00D4FF]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00D4FF]" />
+            <span className="flex items-center gap-1 text-xs text-[#F6C453]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F6C453]" />
               Online
             </span>
           )}
@@ -279,7 +279,7 @@ export default function Dashboard() {
         </div>
       ) : !isConnected ? (
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-8 text-center">
-          <Wallet className="w-12 h-12 mx-auto text-[#7B2FBE] mb-4" />
+          <Wallet className="w-12 h-12 mx-auto text-[#B7791F] mb-4" />
           <h3 className="text-lg font-bold text-white mb-2">Connect Your Wallet</h3>
           <p className="text-[#8B9CC8] text-sm mb-6 max-w-sm mx-auto">
             Connect MetaMask with QIE Mainnet to view your balances and start lending or borrowing.
@@ -287,7 +287,7 @@ export default function Dashboard() {
           <button
             onClick={connect}
             disabled={isConnecting}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold hover:opacity-90 transition-all disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold hover:opacity-90 transition-all disabled:opacity-60"
           >
             <Wallet className="w-5 h-5" />
             {isConnecting ? 'Connecting…' : 'Connect Wallet'}
@@ -331,7 +331,7 @@ export default function Dashboard() {
       </div>
 
       {/* Add Network Instructions */}
-      <div className="bg-[#131B3D] border border-[#7B2FBE]/20 rounded-2xl p-5">
+      <div className="bg-[#131B3D] border border-[#B7791F]/20 rounded-2xl p-5">
         <h3 className="text-sm font-bold text-white mb-4">📌 Add QIE Mainnet to MetaMask</h3>
         <div className="space-y-2">
           {networkFields.map(({ label, value }) => (
@@ -347,7 +347,7 @@ export default function Dashboard() {
               </div>
               <button
                 onClick={() => copyValue(label, value)}
-                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#00D4FF]/10 text-[#8B9CC8] hover:text-[#00D4FF] transition-all"
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-[#F6C453]/10 text-[#8B9CC8] hover:text-[#F6C453] transition-all"
                 title={`Copy ${label}`}
               >
                 {copiedKey === label ? (

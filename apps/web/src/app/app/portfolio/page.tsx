@@ -153,7 +153,7 @@ export default function PortfolioPage() {
           <p className="text-sm text-[#8B9CC8] mt-0.5">Your positions, balances, and rewards</p>
         </div>
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-12 text-center">
-          <Briefcase className="w-12 h-12 mx-auto text-[#7B2FBE] mb-4" />
+          <Briefcase className="w-12 h-12 mx-auto text-[#B7791F] mb-4" />
           <h3 className="text-lg font-bold text-white mb-2">Connect to View Portfolio</h3>
           <p className="text-[#8B9CC8] text-sm mb-6 max-w-xs mx-auto">
             Connect your MetaMask wallet to see your QIFlow positions, balances, and accumulated
@@ -162,7 +162,7 @@ export default function PortfolioPage() {
           <button
             onClick={connect}
             disabled={isConnecting}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm hover:opacity-90 transition-all"
           >
             <Wallet className="w-4 h-4" />
             {isConnecting ? 'Connecting…' : 'Connect Wallet'}
@@ -327,9 +327,9 @@ export default function PortfolioPage() {
       </div>
 
       {/* Wallet Overview */}
-      <div className="bg-gradient-to-br from-[#7B2FBE]/20 to-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-2xl p-6">
+      <div className="bg-gradient-to-br from-[#B7791F]/20 to-[#F6C453]/10 border border-[#F6C453]/20 rounded-2xl p-6">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7B2FBE] to-[#00D4FF] flex items-center justify-center text-2xl font-black text-white flex-shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#B7791F] to-[#F6C453] flex items-center justify-center text-2xl font-black text-white flex-shrink-0">
             {account ? account.slice(2, 3).toUpperCase() : '?'}
           </div>
           <div className="flex-1">
@@ -345,14 +345,14 @@ export default function PortfolioPage() {
                 href={`https://mainnet.qie.digital/address/${account}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-1 rounded-md text-[#8B9CC8] hover:text-[#00D4FF] hover:bg-white/10 transition-colors"
+                className="p-1 rounded-md text-[#8B9CC8] hover:text-[#F6C453] hover:bg-white/10 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
             <div className="flex items-center gap-2">
               <div
-                className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isCorrectNetwork ? 'bg-[#00D4FF]/10 text-[#00D4FF]' : 'bg-yellow-500/10 text-yellow-400'}`}
+                className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isCorrectNetwork ? 'bg-[#F6C453]/10 text-[#F6C453]' : 'bg-yellow-500/10 text-yellow-400'}`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-current" />
                 {networkName}
@@ -379,7 +379,7 @@ export default function PortfolioPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-4 h-4 text-[#00D4FF]" />
+            <Activity className="w-4 h-4 text-[#F6C453]" />
             <span className="text-xs text-[#8B9CC8]">Transactions</span>
           </div>
           <p className="text-lg font-bold text-white">{walletData?.txCount ?? '—'}</p>
@@ -388,7 +388,7 @@ export default function PortfolioPage() {
 
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-[#7B2FBE]" />
+            <TrendingUp className="w-4 h-4 text-[#B7791F]" />
             <span className="text-xs text-[#8B9CC8]">Latest Block</span>
           </div>
           <p className="text-lg font-bold text-white">
@@ -399,7 +399,7 @@ export default function PortfolioPage() {
 
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Wallet className="w-4 h-4 text-[#00D4FF]" />
+            <Wallet className="w-4 h-4 text-[#F6C453]" />
             <span className="text-xs text-[#8B9CC8]">Protocol Supply</span>
           </div>
           <p className="text-lg font-bold text-white">
@@ -410,7 +410,7 @@ export default function PortfolioPage() {
 
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Briefcase className="w-4 h-4 text-[#7B2FBE]" />
+            <Briefcase className="w-4 h-4 text-[#B7791F]" />
             <span className="text-xs text-[#8B9CC8]">Protocol Borrow</span>
           </div>
           <p className="text-lg font-bold text-white">
@@ -426,15 +426,15 @@ export default function PortfolioPage() {
           <h2 className="text-sm font-semibold text-[#8B9CC8] uppercase tracking-wider">
             Supplied Assets
           </h2>
-          <Link href="/app/lend" className="text-xs text-[#00D4FF] hover:underline">
+          <Link href="/app/lend" className="text-xs text-[#F6C453] hover:underline">
             + Supply
           </Link>
         </div>
         {hasSuppliedQie ? (
-          <div className="bg-[#131B3D] border border-[#00D4FF]/20 rounded-2xl p-5">
+          <div className="bg-[#131B3D] border border-[#F6C453]/20 rounded-2xl p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#00D4FF]/10 flex items-center justify-center text-sm font-black text-[#00D4FF]">
+                <div className="w-11 h-11 rounded-xl bg-[#F6C453]/10 flex items-center justify-center text-sm font-black text-[#F6C453]">
                   QIE
                 </div>
                 <div>
@@ -476,7 +476,7 @@ export default function PortfolioPage() {
                 />
                 <button
                   onClick={() => setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '')}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#F6C453] hover:bg-[#F6C453]/10"
                 >
                   Max
                 </button>
@@ -484,7 +484,7 @@ export default function PortfolioPage() {
               <button
                 onClick={() => handleWithdrawNative(withdrawAmount)}
                 disabled={isWithdrawing}
-                className="rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isWithdrawing ? 'Withdrawing...' : 'Withdraw QIE'}
               </button>
@@ -504,15 +504,15 @@ export default function PortfolioPage() {
           <h2 className="text-sm font-semibold text-[#8B9CC8] uppercase tracking-wider">
             Borrowed Assets
           </h2>
-          <Link href="/app/borrow" className="text-xs text-[#00D4FF] hover:underline">
+          <Link href="/app/borrow" className="text-xs text-[#F6C453] hover:underline">
             + Borrow
           </Link>
         </div>
         {hasBorrowedQie ? (
-          <div className="bg-[#131B3D] border border-[#7B2FBE]/20 rounded-2xl p-5">
+          <div className="bg-[#131B3D] border border-[#B7791F]/20 rounded-2xl p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#7B2FBE]/15 flex items-center justify-center text-sm font-black text-[#00D4FF]">
+                <div className="w-11 h-11 rounded-xl bg-[#B7791F]/15 flex items-center justify-center text-sm font-black text-[#F6C453]">
                   QIE
                 </div>
                 <div>
@@ -550,7 +550,7 @@ export default function PortfolioPage() {
                   onClick={() =>
                     setRepayAmount(getBufferedRepayAmount(protocolData?.qie.userBorrowQIE))
                   }
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#F6C453] hover:bg-[#F6C453]/10"
                 >
                   Max
                 </button>
@@ -558,7 +558,7 @@ export default function PortfolioPage() {
               <button
                 onClick={() => handleRepayNative(repayAmount)}
                 disabled={isRepaying}
-                className="rounded-xl border border-[#00D4FF]/30 px-5 py-3 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl border border-[#F6C453]/30 px-5 py-3 text-sm font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isRepaying ? 'Repaying...' : 'Repay QIE'}
               </button>
@@ -573,7 +573,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* QIF Rewards */}
-      <div className="bg-gradient-to-br from-[#131B3D] to-[#0D1535] border border-[#7B2FBE]/20 rounded-2xl p-6">
+      <div className="bg-gradient-to-br from-[#131B3D] to-[#0D1535] border border-[#B7791F]/20 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-bold text-white">QIF Rewards</h2>
@@ -581,7 +581,7 @@ export default function PortfolioPage() {
               Governance token earned by suppliers & borrowers
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7B2FBE]/30 to-[#00D4FF]/20 flex items-center justify-center text-sm font-black text-[#00D4FF]">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#B7791F]/30 to-[#F6C453]/20 flex items-center justify-center text-sm font-black text-[#F6C453]">
             QIF
           </div>
         </div>
@@ -602,7 +602,7 @@ export default function PortfolioPage() {
         <button
           onClick={handleClaimRewards}
           disabled={!hasPendingRewards || isClaimingRewards}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-none disabled:bg-white/5 disabled:text-[#8B9CC8] disabled:opacity-60"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-none disabled:bg-white/5 disabled:text-[#8B9CC8] disabled:opacity-60"
         >
           {isClaimingRewards
             ? 'Claiming QIF Rewards...'
@@ -618,7 +618,7 @@ export default function PortfolioPage() {
           href={`https://mainnet.qie.digital/address/${account}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           View on QIE Explorer
@@ -628,7 +628,7 @@ export default function PortfolioPage() {
           href="https://www.qiewallet.me/blogs"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Wallet Blog

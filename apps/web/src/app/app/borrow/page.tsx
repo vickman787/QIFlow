@@ -44,7 +44,7 @@ const BORROW_MARKETS = [
     symbol: 'QIE',
     name: 'QIE (Native)',
     icon: '⚡',
-    color: '#00D4FF',
+    color: '#F6C453',
     minCollateralFactor: 75,
     liquidationThreshold: 80,
     status: 'live',
@@ -281,7 +281,7 @@ function BorrowMarketRow({
 
   return (
     <div
-      className={`rounded-2xl border transition-all ${open ? 'border-[#7B2FBE]/30' : 'border-white/5'} bg-[#131B3D] overflow-hidden`}
+      className={`rounded-2xl border transition-all ${open ? 'border-[#B7791F]/30' : 'border-white/5'} bg-[#131B3D] overflow-hidden`}
     >
       <button
         onClick={() => setOpen((o) => !o)}
@@ -385,7 +385,7 @@ function BorrowMarketRow({
                     />
                     <button
                       onClick={() => setBorrowAmount(availableToBorrow)}
-                      className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                      className="rounded-lg px-2 py-1 text-xs font-bold text-[#F6C453] hover:bg-[#F6C453]/10"
                     >
                       Max
                     </button>
@@ -393,7 +393,7 @@ function BorrowMarketRow({
                   <button
                     onClick={handleBorrowNative}
                     disabled={isSubmitting}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm hover:opacity-90 transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isSubmitting ? 'Submitting...' : `Borrow ${market.symbol}`}
                   </button>
@@ -418,7 +418,7 @@ function BorrowMarketRow({
                           onClick={() =>
                             setRepayAmount(getBufferedRepayAmount(protocolData?.qie.userBorrowQIE))
                           }
-                          className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
+                          className="rounded-lg px-2 py-1 text-xs font-bold text-[#F6C453] hover:bg-[#F6C453]/10"
                         >
                           Max
                         </button>
@@ -426,7 +426,7 @@ function BorrowMarketRow({
                       <button
                         onClick={handleRepayNative}
                         disabled={isSubmitting}
-                        className="w-full rounded-xl border border-[#00D4FF]/30 px-4 py-2.5 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full rounded-xl border border-[#F6C453]/30 px-4 py-2.5 text-sm font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Repay QIE
                       </button>
@@ -467,8 +467,8 @@ export default function BorrowPage() {
       </div>
 
       {/* Info Banner */}
-      <div className="flex items-start gap-3 p-4 rounded-2xl bg-[#7B2FBE]/5 border border-[#7B2FBE]/15">
-        <Info className="w-5 h-5 text-[#7B2FBE] flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 rounded-2xl bg-[#B7791F]/5 border border-[#B7791F]/15">
+        <Info className="w-5 h-5 text-[#B7791F] flex-shrink-0 mt-0.5" />
         <div className="text-sm">
           <p className="text-white font-semibold mb-1">How Borrowing Works</p>
           <p className="text-[#8B9CC8] text-xs leading-relaxed">
@@ -496,7 +496,7 @@ export default function BorrowPage() {
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Available</p>
-            <p className="text-lg font-bold text-[#00D4FF]">{formatQie(availableToBorrow)} QIE</p>
+            <p className="text-lg font-bold text-[#F6C453]">{formatQie(availableToBorrow)} QIE</p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <HealthBar value={protocolData?.qie.healthFactor ?? null} />
@@ -586,7 +586,7 @@ export default function BorrowPage() {
       {/* Connect Prompt */}
       {!isConnected && (
         <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-8 text-center">
-          <ArrowDownUp className="w-10 h-10 mx-auto text-[#7B2FBE] mb-3" />
+          <ArrowDownUp className="w-10 h-10 mx-auto text-[#B7791F] mb-3" />
           <h3 className="text-base font-bold text-white mb-2">Connect to Borrow</h3>
           <p className="text-[#8B9CC8] text-sm mb-5 max-w-xs mx-auto">
             Connect your wallet to view borrow limits and access liquidity.
@@ -594,7 +594,7 @@ export default function BorrowPage() {
           <button
             onClick={connect}
             disabled={isConnecting}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white font-bold text-sm hover:opacity-90 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm hover:opacity-90 transition-all"
           >
             <Wallet className="w-4 h-4" />
             {isConnecting ? 'Connecting…' : 'Connect Wallet'}
@@ -608,7 +608,7 @@ export default function BorrowPage() {
           href="https://mainnet.qie.digital/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Explorer
@@ -618,7 +618,7 @@ export default function BorrowPage() {
           href="https://docs.qie.digital/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#00D4FF] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Docs

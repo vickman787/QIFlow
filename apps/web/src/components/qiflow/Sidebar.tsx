@@ -34,9 +34,9 @@ export default function Sidebar() {
         <img
           src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"
           alt="QIFlow"
-          className="w-8 h-8 rounded-xl object-cover shadow-lg shadow-[#00D4FF]/20"
+          className="w-8 h-8 rounded-xl object-cover shadow-lg shadow-[#F6C453]/20"
         />
-        <span className="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#00D4FF] to-[#7B2FBE]">
+        <span className="text-xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#F6C453] to-[#B7791F]">
           QIFlow
         </span>
       </Link>
@@ -56,15 +56,15 @@ export default function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
                 active
-                  ? 'bg-gradient-to-r from-[#7B2FBE]/20 to-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20'
+                  ? 'bg-gradient-to-r from-[#B7791F]/20 to-[#F6C453]/10 text-[#F6C453] border border-[#F6C453]/20'
                   : 'text-[#8B9CC8] hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className={active ? 'text-[#00D4FF]' : 'text-[#8B9CC8] group-hover:text-white'}>
+              <span className={active ? 'text-[#F6C453]' : 'text-[#8B9CC8] group-hover:text-white'}>
                 {item.icon}
               </span>
               {item.label}
-              {active && <ChevronRight className="w-4 h-4 ml-auto text-[#00D4FF]/60" />}
+              {active && <ChevronRight className="w-4 h-4 ml-auto text-[#F6C453]/60" />}
             </Link>
           );
         })}
@@ -93,10 +93,10 @@ export default function Sidebar() {
         <div className="rounded-xl bg-[#131B3D] border border-white/5 p-3 text-center">
           <div className="flex items-center justify-center gap-1.5 mb-1">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00D4FF] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00D4FF]" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F6C453] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F6C453]" />
             </span>
-            <span className="text-xs font-semibold text-[#00D4FF]">QIE Mainnet</span>
+            <span className="text-xs font-semibold text-[#F6C453]">QIE Mainnet</span>
           </div>
           <p className="text-[10px] text-[#8B9CC8]">Chain ID: 1990</p>
         </div>

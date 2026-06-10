@@ -79,8 +79,8 @@ export default function Loading() {
                 inset: -8,
                 borderRadius: 24,
                 border: '2.5px solid transparent',
-                borderTopColor: '#00D4FF',
-                borderRightColor: '#7B2FBE',
+                borderTopColor: '#F6C453',
+                borderRightColor: '#B7791F',
               }}
             />
             <img
@@ -103,7 +103,7 @@ export default function Loading() {
                 fontWeight: 900,
                 letterSpacing: -0.5,
                 margin: 0,
-                background: 'linear-gradient(90deg, #00D4FF, #7B2FBE)',
+                background: 'linear-gradient(90deg, #F6C453, #B7791F)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -119,7 +119,7 @@ export default function Loading() {
               <div
                 key={cls}
                 className={cls}
-                style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#00D4FF' }}
+                style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#F6C453' }}
               />
             ))}
           </div>

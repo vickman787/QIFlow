@@ -55,12 +55,12 @@ function WalletMenu({
         onClick={() => setOpen((o) => !o)}
         className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
           isCorrectNetwork
-            ? 'border-[#00D4FF]/30 bg-[#00D4FF]/5 text-white hover:bg-[#00D4FF]/10'
+            ? 'border-[#F6C453]/30 bg-[#F6C453]/5 text-white hover:bg-[#F6C453]/10'
             : 'border-yellow-500/30 bg-yellow-500/5 text-yellow-400'
         }`}
       >
         {!isCorrectNetwork && <AlertTriangle className="w-4 h-4" />}
-        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#7B2FBE] to-[#00D4FF]" />
+        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#B7791F] to-[#F6C453]" />
         <span>{short}</span>
         {qieBalance && isCorrectNetwork && (
           <span className="text-[#8B9CC8] text-xs">{parseFloat(qieBalance).toFixed(2)} QIE</span>
@@ -78,12 +78,12 @@ function WalletMenu({
               <p className="text-xs text-[#8B9CC8] mb-1">Connected Wallet</p>
               <p className="text-sm font-mono text-white">{short}</p>
               {qieBalance && (
-                <p className="text-sm text-[#00D4FF] font-semibold mt-1">
+                <p className="text-sm text-[#F6C453] font-semibold mt-1">
                   {parseFloat(qieBalance).toFixed(4)} QIE
                 </p>
               )}
               <div className="mt-2 flex items-center gap-1 text-xs text-[#8B9CC8]">
-                <div className="w-2 h-2 rounded-full bg-[#00D4FF]" />
+                <div className="w-2 h-2 rounded-full bg-[#F6C453]" />
                 {isCorrectNetwork ? 'QIE Mainnet' : `Chain ${chainId}`}
               </div>
             </div>
@@ -162,7 +162,7 @@ export default function Navbar() {
             alt="QIFlow"
             className="w-7 h-7 rounded-lg object-cover"
           />
-          <span className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-[#00D4FF] to-[#7B2FBE]">
+          <span className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-[#F6C453] to-[#B7791F]">
             QIFlow
           </span>
         </Link>
@@ -197,7 +197,7 @@ export default function Navbar() {
             <button
               onClick={connect}
               disabled={isConnecting}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#7B2FBE] to-[#00D4FF] text-white text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-60 shadow-lg shadow-[#7B2FBE]/30"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-60 shadow-lg shadow-[#B7791F]/30"
             >
               <Wallet className="w-4 h-4" />
               {isConnecting ? 'Connecting…' : 'Connect Wallet'}
@@ -224,7 +224,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
               className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                 pathname === item.href
-                  ? 'text-[#00D4FF] bg-[#00D4FF]/10'
+                  ? 'text-[#F6C453] bg-[#F6C453]/10'
                   : 'text-[#8B9CC8] hover:text-white hover:bg-white/5'
               }`}
             >
