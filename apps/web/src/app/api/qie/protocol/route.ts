@@ -15,6 +15,8 @@ const REWARDS_CLAIMED_TOPIC =
 const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const SECONDS_PER_YEAR = 365n * 24n * 60n * 60n;
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+const LOG_LOOKBACK_BLOCKS = 100_000n;
+const LOG_CHUNK_SIZE = 9_999n;
 
 function encodeAddress(address: string) {
   return address.toLowerCase().replace(/^0x/, '').padStart(64, '0');
@@ -79,27 +81,28 @@ interface LogFilter {
 async function getLogs(filter: LogFilter) {
   const latestHex = await rpcCall('eth_blockNumber');
   const latest = BigInt(latestHex);
-  const fallbackStart = latest > 1_000_000n ? latest - 1_000_000n : 0n;
 
   try {
     const logs = (await rpcCall('eth_getLogs', [filter])) as unknown as RpcLog[];
     if (logs.length > 0 || filter.fromBlock !== '0x0') return logs;
-
-    return (await rpcCall('eth_getLogs', [
-      {
-        ...filter,
-        fromBlock: `0x${fallbackStart.toString(16)}`,
-        toBlock: 'latest',
-      },
-    ])) as unknown as RpcLog[];
+    return [];
   } catch {
-    return (await rpcCall('eth_getLogs', [
-      {
-        ...filter,
-        fromBlock: `0x${fallbackStart.toString(16)}`,
-        toBlock: 'latest',
-      },
-    ])) as unknown as RpcLog[];
+    const logs: RpcLog[] = [];
+    const start = latest > LOG_LOOKBACK_BLOCKS ? latest - LOG_LOOKBACK_BLOCKS : 0n;
+
+    for (let from = start; from <= latest; from += LOG_CHUNK_SIZE + 1n) {
+      const to = from + LOG_CHUNK_SIZE > latest ? latest : from + LOG_CHUNK_SIZE;
+      const chunk = (await rpcCall('eth_getLogs', [
+        {
+          ...filter,
+          fromBlock: `0x${from.toString(16)}`,
+          toBlock: `0x${to.toString(16)}`,
+        },
+      ])) as unknown as RpcLog[];
+      logs.push(...chunk);
+    }
+
+    return logs;
   }
 }
 
