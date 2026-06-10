@@ -84,7 +84,7 @@ export default function Loading() {
               }}
             />
             <img
-              src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"
+              src="/qiflow-logo-gold.svg"
               alt="QIFlow"
               style={{
                 width: 80,

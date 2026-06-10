@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#050505"/>
+  <rect x="34" y="34" width="444" height="444" rx="88" fill="#0B0A07" stroke="#F6C453" stroke-width="10"/>
+  <circle cx="256" cy="238" r="132" fill="#14110B" stroke="url(#ring)" stroke-width="38"/>
+  <path d="M300 304C332 336 374 360 425 372C372 390 308 372 264 326L225 285C210 269 211 244 228 229C245 214 270 216 285 232L300 248L347 296C360 309 380 316 404 318C371 340 329 334 300 304Z" fill="url(#tail)"/>
+  <path d="M256 132C190 132 136 186 136 252C136 285 149 315 170 337" stroke="#FFE2A3" stroke-width="18" stroke-linecap="round" opacity="0.75"/>
+  <text x="256" y="416" text-anchor="middle" fill="#F6C453" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="900" letter-spacing="2">QIFLOW</text>
+  <defs>
+    <linearGradient id="ring" x1="115" y1="100" x2="389" y2="365" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE2A3"/>
+      <stop offset="0.48" stop-color="#F6C453"/>
+      <stop offset="1" stop-color="#B7791F"/>
+    </linearGradient>
+    <linearGradient id="tail" x1="218" y1="218" x2="420" y2="384" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE2A3"/>
+      <stop offset="0.45" stop-color="#F6C453"/>
+      <stop offset="1" stop-color="#B7791F"/>
+    </linearGradient>
+  </defs>
+</svg>

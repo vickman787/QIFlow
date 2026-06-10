@@ -158,7 +158,7 @@ export default function Navbar() {
         {/* Mobile logo */}
         <Link href="/" className="flex items-center gap-2 md:hidden">
           <img
-            src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"
+            src="/qiflow-logo-gold.svg"
             alt="QIFlow"
             className="w-7 h-7 rounded-lg object-cover"
           />

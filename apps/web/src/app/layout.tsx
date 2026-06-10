@@ -5,7 +5,7 @@ import { Providers } from './providers';
 
 const BANNER =
   'https://dtvoeevhaseb5.cloudfront.net/user-uploads/3ed5efbe-e93a-4553-aa1c-efd3a7eadc15.jpg';
-const LOGO = 'https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/';
+const LOGO = '/qiflow-logo-gold.svg';
 const DESC =
   'Supply assets and borrow against collateral on QIE Blockchain. Flow into decentralized finance.';
 

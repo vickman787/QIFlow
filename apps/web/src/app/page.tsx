@@ -114,7 +114,7 @@ export default function QIFlowLanding() {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img
-              src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"
+              src="/qiflow-logo-gold.svg"
               alt="QIFlow Logo"
               className="w-9 h-9 rounded-xl object-cover shadow-lg shadow-[#F6C453]/20"
             />
@@ -379,7 +379,7 @@ export default function QIFlowLanding() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[#B8B2A6] text-sm">
           <div className="flex items-center gap-2">
             <img
-              src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"
+              src="/qiflow-logo-gold.svg"
               alt="QIFlow"
               className="w-7 h-7 rounded-lg object-cover"
             />

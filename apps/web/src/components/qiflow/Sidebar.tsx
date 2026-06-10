@@ -32,7 +32,7 @@ export default function Sidebar() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 px-3 mb-8">
         <img
-          src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"
+          src="/qiflow-logo-gold.svg"
           alt="QIFlow"
           className="w-8 h-8 rounded-xl object-cover shadow-lg shadow-[#F6C453]/20"
         />
