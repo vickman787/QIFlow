@@ -97,7 +97,7 @@ export default function ContractsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#120F08] via-[#2A1A06] to-[#0B1026] text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#050505] via-[#120F08] to-[#050505] text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12 text-center">
@@ -108,13 +108,13 @@ export default function ContractsPage() {
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-[#FFD166] to-[#F59E0B] bg-clip-text text-transparent">
             QIFlow Protocol Contracts
           </h1>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+          <p className="text-xl text-[#C9C2B5] max-w-2xl mx-auto">
             Production-ready Solidity contracts for lending and borrowing on QIE Blockchain
           </p>
         </div>
 
         <Tabs defaultValue="contracts" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-3 bg-slate-900/50 border border-slate-800">
+          <TabsList className="grid w-full grid-cols-3 bg-[#14110B]/80 border border-[#3A2A12]">
             <TabsTrigger value="contracts">Contracts</TabsTrigger>
             <TabsTrigger value="setup">Setup Guide</TabsTrigger>
             <TabsTrigger value="networks">Networks</TabsTrigger>
@@ -122,7 +122,7 @@ export default function ContractsPage() {
 
           {/* Contracts Tab */}
           <TabsContent value="contracts" className="space-y-6">
-            <Card className="bg-slate-900/50 border-slate-800">
+            <Card className="bg-[#14110B]/80 border-[#3A2A12]">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
                   <Rocket className="w-5 h-5" />
@@ -133,7 +133,7 @@ export default function ContractsPage() {
                 {deployedContracts.map(([name, address], idx) => (
                   <div
                     key={name}
-                    className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-950/50 p-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 rounded-lg border border-[#3A2A12] bg-[#0B0A07]/70 p-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white">{name}</p>
@@ -167,7 +167,7 @@ export default function ContractsPage() {
               {contracts.map((contract, idx) => (
                 <Card
                   key={idx}
-                  className="bg-slate-900/50 border-slate-800 hover:border-[#B7791F]/50 transition-all"
+                  className="bg-[#14110B]/80 border-[#3A2A12] hover:border-[#B7791F]/50 transition-all"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -185,7 +185,7 @@ export default function ContractsPage() {
                               ? 'bg-[#F6C453]/20 text-[#FFD166] border-[#F6C453]/30'
                               : contract.category === 'rewards'
                                 ? 'bg-green-500/20 text-green-300 border-green-500/30'
-                                : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
+                                : 'bg-[#3A2A12]/40 text-[#C9C2B5] border-[#6B4A16]/40'
                         }
                       >
                         {contract.category}
@@ -193,7 +193,7 @@ export default function ContractsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-slate-400 text-sm">{contract.description}</p>
+                    <p className="text-[#9F9788] text-sm">{contract.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -210,22 +210,22 @@ export default function ContractsPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-[#F6C453]">25+</div>
-                    <div className="text-sm text-slate-400">Test Cases</div>
+                    <div className="text-sm text-[#9F9788]">Test Cases</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-[#F59E0B]">6</div>
-                    <div className="text-sm text-slate-400">Contracts</div>
+                    <div className="text-sm text-[#9F9788]">Contracts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-[#F6C453]">1,369</div>
-                    <div className="text-sm text-slate-400">Total Lines</div>
+                    <div className="text-sm text-[#9F9788]">Total Lines</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-green-400">100%</div>
-                    <div className="text-sm text-slate-400">Coverage</div>
+                    <div className="text-sm text-[#9F9788]">Coverage</div>
                   </div>
                 </div>
-                <p className="text-slate-300 text-sm">
+                <p className="text-[#C9C2B5] text-sm">
                   All contracts include comprehensive tests covering supply, withdraw, borrow,
                   repay, liquidation, interest accrual, rewards distribution, and edge cases.
                 </p>
@@ -236,7 +236,7 @@ export default function ContractsPage() {
           {/* Setup Guide Tab */}
           <TabsContent value="setup" className="space-y-6">
             {setupSteps.map((step, idx) => (
-              <Card key={idx} className="bg-slate-900/50 border-slate-800">
+              <Card key={idx} className="bg-[#14110B]/80 border-[#3A2A12]">
                 <CardHeader>
                   <div className="flex items-start gap-4">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#B7791F]/20 text-[#F6C453] font-bold border border-[#B7791F]/30 flex-shrink-0">
@@ -244,8 +244,8 @@ export default function ContractsPage() {
                     </div>
                     <div className="flex-1">
                       <CardTitle className="text-white mb-2">{step.title}</CardTitle>
-                      <p className="text-slate-400 text-sm mb-3">{step.description}</p>
-                      <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
+                      <p className="text-[#9F9788] text-sm mb-3">{step.description}</p>
+                      <div className="flex items-center gap-2 bg-[#0B0A07]/70 rounded-lg p-3 border border-[#3A2A12]">
                         <code className="flex-1 text-sm text-[#FFD166] font-mono">
                           {step.command}
                         </code>
@@ -276,13 +276,13 @@ export default function ContractsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-slate-300">
+                <p className="text-[#C9C2B5]">
                   After deployment, addresses are automatically saved to{' '}
-                  <code className="text-[#FFD166] bg-slate-950/50 px-2 py-1 rounded">
+                  <code className="text-[#FFD166] bg-[#0B0A07]/70 px-2 py-1 rounded">
                     deployedAddresses.json
                   </code>
                 </p>
-                <p className="text-slate-300">
+                <p className="text-[#C9C2B5]">
                   Copy those addresses and paste them into the QIFlow frontend to connect your live
                   contracts instantly.
                 </p>
@@ -293,7 +293,7 @@ export default function ContractsPage() {
           {/* Networks Tab */}
           <TabsContent value="networks" className="space-y-6">
             {networkInfo.map((network, idx) => (
-              <Card key={idx} className="bg-slate-900/50 border-slate-800">
+              <Card key={idx} className="bg-[#14110B]/80 border-[#3A2A12]">
                 <CardHeader>
                   <CardTitle className="text-white flex items-center gap-3">
                     {network.name}
@@ -305,8 +305,8 @@ export default function ContractsPage() {
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div>
-                      <div className="text-sm text-slate-400 mb-1">RPC Endpoint</div>
-                      <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
+                      <div className="text-sm text-[#9F9788] mb-1">RPC Endpoint</div>
+                      <div className="flex items-center gap-2 bg-[#0B0A07]/70 rounded-lg p-3 border border-[#3A2A12]">
                         <code className="flex-1 text-sm text-[#FFD166] font-mono">
                           {network.rpc}
                         </code>
@@ -325,8 +325,8 @@ export default function ContractsPage() {
                     </div>
 
                     <div>
-                      <div className="text-sm text-slate-400 mb-1">Block Explorer</div>
-                      <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
+                      <div className="text-sm text-[#9F9788] mb-1">Block Explorer</div>
+                      <div className="flex items-center gap-2 bg-[#0B0A07]/70 rounded-lg p-3 border border-[#3A2A12]">
                         <code className="flex-1 text-sm text-[#FFD166] font-mono">
                           {network.explorer}
                         </code>
@@ -346,8 +346,8 @@ export default function ContractsPage() {
 
                     {network.faucet && (
                       <div>
-                        <div className="text-sm text-slate-400 mb-1">Faucet</div>
-                        <div className="flex items-center gap-2 bg-slate-950/50 rounded-lg p-3 border border-slate-800">
+                        <div className="text-sm text-[#9F9788] mb-1">Faucet</div>
+                        <div className="flex items-center gap-2 bg-[#0B0A07]/70 rounded-lg p-3 border border-[#3A2A12]">
                           <code className="flex-1 text-sm text-green-300 font-mono">
                             {network.faucet}
                           </code>
@@ -384,13 +384,13 @@ export default function ContractsPage() {
                 <CardTitle className="text-white">MetaMask Configuration</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-slate-300 text-sm">To add QIE networks to MetaMask:</p>
-                <ol className="list-decimal list-inside space-y-2 text-slate-300 text-sm">
+                <p className="text-[#C9C2B5] text-sm">To add QIE networks to MetaMask:</p>
+                <ol className="list-decimal list-inside space-y-2 text-[#C9C2B5] text-sm">
                   <li>Open MetaMask → Settings → Networks → Add Network</li>
                   <li>Enter the RPC URL and Chain ID from above</li>
                   <li>
                     Set currency symbol to{' '}
-                    <code className="text-[#FFD166] bg-slate-950/50 px-2 py-1 rounded">QIE</code>
+                    <code className="text-[#FFD166] bg-[#0B0A07]/70 px-2 py-1 rounded">QIE</code>
                   </li>
                   <li>Save and switch to the new network</li>
                 </ol>

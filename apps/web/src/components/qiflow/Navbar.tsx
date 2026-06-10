@@ -63,26 +63,26 @@ function WalletMenu({
         <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#B7791F] to-[#F6C453]" />
         <span>{short}</span>
         {qieBalance && isCorrectNetwork && (
-          <span className="text-[#8B9CC8] text-xs">{parseFloat(qieBalance).toFixed(2)} QIE</span>
+          <span className="text-[#B8B2A6] text-xs">{parseFloat(qieBalance).toFixed(2)} QIE</span>
         )}
         <ChevronDown
-          className={`w-4 h-4 text-[#8B9CC8] transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-[#B8B2A6] transition-transform ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-[#131B3D] border border-white/10 shadow-xl z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-60 rounded-2xl bg-[#14110B] border border-white/10 shadow-xl z-50 overflow-hidden">
             <div className="p-4 border-b border-white/5">
-              <p className="text-xs text-[#8B9CC8] mb-1">Connected Wallet</p>
+              <p className="text-xs text-[#B8B2A6] mb-1">Connected Wallet</p>
               <p className="text-sm font-mono text-white">{short}</p>
               {qieBalance && (
                 <p className="text-sm text-[#F6C453] font-semibold mt-1">
                   {parseFloat(qieBalance).toFixed(4)} QIE
                 </p>
               )}
-              <div className="mt-2 flex items-center gap-1 text-xs text-[#8B9CC8]">
+              <div className="mt-2 flex items-center gap-1 text-xs text-[#B8B2A6]">
                 <div className="w-2 h-2 rounded-full bg-[#F6C453]" />
                 {isCorrectNetwork ? 'QIE Mainnet' : `Chain ${chainId}`}
               </div>
@@ -103,7 +103,7 @@ function WalletMenu({
 
             <button
               onClick={copyAddress}
-              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[#8B9CC8] hover:text-white hover:bg-white/5 transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[#B8B2A6] hover:text-white hover:bg-white/5 transition-colors"
             >
               <Copy className="w-4 h-4" />
               Copy Address
@@ -114,7 +114,7 @@ function WalletMenu({
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[#8B9CC8] hover:text-white hover:bg-white/5 transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-[#B8B2A6] hover:text-white hover:bg-white/5 transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               View on Explorer
@@ -153,7 +153,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0A0F2C]/90 backdrop-blur-xl md:ml-56">
+    <header className="sticky top-0 z-30 border-b border-white/5 bg-[#050505]/90 backdrop-blur-xl md:ml-56">
       <div className="px-4 md:px-6 h-16 flex items-center justify-between">
         {/* Mobile logo */}
         <Link href="/" className="flex items-center gap-2 md:hidden">
@@ -174,7 +174,7 @@ export default function Navbar() {
               key={item.href}
               href={item.href}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                pathname === item.href ? 'text-white bg-white/5' : 'text-[#8B9CC8] hover:text-white'
+                pathname === item.href ? 'text-white bg-white/5' : 'text-[#B8B2A6] hover:text-white'
               }`}
             >
               {item.label}
@@ -206,7 +206,7 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded-lg text-[#8B9CC8] hover:text-white hover:bg-white/5"
+            className="md:hidden p-2 rounded-lg text-[#B8B2A6] hover:text-white hover:bg-white/5"
             onClick={() => setMobileOpen((o) => !o)}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -216,7 +216,7 @@ export default function Navbar() {
 
       {/* Mobile nav dropdown */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-white/5 bg-[#0D1535] px-4 py-3 space-y-1">
+        <div className="md:hidden border-t border-white/5 bg-[#0B0A07] px-4 py-3 space-y-1">
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
@@ -225,7 +225,7 @@ export default function Navbar() {
               className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                 pathname === item.href
                   ? 'text-[#F6C453] bg-[#F6C453]/10'
-                  : 'text-[#8B9CC8] hover:text-white hover:bg-white/5'
+                  : 'text-[#B8B2A6] hover:text-white hover:bg-white/5'
               }`}
             >
               {item.label}

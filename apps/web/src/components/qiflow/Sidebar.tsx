@@ -28,7 +28,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-56 min-h-screen bg-[#0D1535] border-r border-white/5 py-6 px-3 fixed left-0 top-0 bottom-0 z-40">
+    <aside className="hidden md:flex flex-col w-56 min-h-screen bg-[#0B0A07] border-r border-white/5 py-6 px-3 fixed left-0 top-0 bottom-0 z-40">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 px-3 mb-8">
         <img
@@ -44,7 +44,7 @@ export default function Sidebar() {
       {/* Main Nav */}
       <nav className="flex-1 space-y-1">
         <div className="px-3 mb-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8B9CC8]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#B8B2A6]">
             Protocol
           </p>
         </div>
@@ -57,10 +57,10 @@ export default function Sidebar() {
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
                 active
                   ? 'bg-gradient-to-r from-[#B7791F]/20 to-[#F6C453]/10 text-[#F6C453] border border-[#F6C453]/20'
-                  : 'text-[#8B9CC8] hover:text-white hover:bg-white/5'
+                  : 'text-[#B8B2A6] hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className={active ? 'text-[#F6C453]' : 'text-[#8B9CC8] group-hover:text-white'}>
+              <span className={active ? 'text-[#F6C453]' : 'text-[#B8B2A6] group-hover:text-white'}>
                 {item.icon}
               </span>
               {item.label}
@@ -70,7 +70,7 @@ export default function Sidebar() {
         })}
 
         <div className="px-3 mt-6 mb-2">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8B9CC8]">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#B8B2A6]">
             QIE Ecosystem
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function Sidebar() {
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#8B9CC8] hover:text-white hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#B8B2A6] hover:text-white hover:bg-white/5 transition-all"
           >
             <ExternalLink className="w-4 h-4" />
             {item.label}
@@ -90,7 +90,7 @@ export default function Sidebar() {
 
       {/* Network Badge */}
       <div className="mt-auto px-3">
-        <div className="rounded-xl bg-[#131B3D] border border-white/5 p-3 text-center">
+        <div className="rounded-xl bg-[#14110B] border border-white/5 p-3 text-center">
           <div className="flex items-center justify-center gap-1.5 mb-1">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F6C453] opacity-75" />
@@ -98,7 +98,7 @@ export default function Sidebar() {
             </span>
             <span className="text-xs font-semibold text-[#F6C453]">QIE Mainnet</span>
           </div>
-          <p className="text-[10px] text-[#8B9CC8]">Chain ID: 1990</p>
+          <p className="text-[10px] text-[#B8B2A6]">Chain ID: 1990</p>
         </div>
       </div>
     </aside>

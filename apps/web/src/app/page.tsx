@@ -108,9 +108,9 @@ export default function QIFlowLanding() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0A0F2C] text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#0A0F2C]/80 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img
@@ -123,7 +123,7 @@ export default function QIFlowLanding() {
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[#8B9CC8]">
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[#B8B2A6]">
             <a
               href="https://docs.qie.digital/"
               target="_blank"
@@ -153,7 +153,7 @@ export default function QIFlowLanding() {
           <div className="flex items-center gap-3">
             {/* Live network indicator */}
             {stats && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#131B3D] border border-white/10 text-xs text-[#8B9CC8]">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#14110B] border border-white/10 text-xs text-[#B8B2A6]">
                 <StatPulse online={stats.mainnet.online} />
                 <span>Block #{blockTick?.toLocaleString()}</span>
               </div>
@@ -191,7 +191,7 @@ export default function QIFlowLanding() {
             Finance
           </h1>
 
-          <p className="text-[#8B9CC8] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
+          <p className="text-[#B8B2A6] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
             QIFlow is the premier lending protocol on QIE Blockchain — supply assets to earn yield
             or borrow against your collateral at transparent, algorithm-driven rates.
           </p>
@@ -253,17 +253,17 @@ export default function QIFlowLanding() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-[#131B3D] border border-white/5 rounded-2xl p-4 flex flex-col gap-2"
+                className="bg-[#14110B] border border-white/5 rounded-2xl p-4 flex flex-col gap-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#8B9CC8] font-medium">{item.label}</span>
+                  <span className="text-xs text-[#B8B2A6] font-medium">{item.label}</span>
                   <div className="flex items-center gap-1.5">
                     {item.live && stats?.mainnet.online && <StatPulse online />}
                     {item.icon}
                   </div>
                 </div>
                 <div className="text-lg font-bold text-white">{item.value}</div>
-                <div className="text-xs text-[#8B9CC8]">{item.sub}</div>
+                <div className="text-xs text-[#B8B2A6]">{item.sub}</div>
               </div>
             ))}
           </div>
@@ -275,7 +275,7 @@ export default function QIFlowLanding() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black mb-4">Why QIFlow?</h2>
-            <p className="text-[#8B9CC8] max-w-xl mx-auto">
+            <p className="text-[#B8B2A6] max-w-xl mx-auto">
               Designed from the ground up for the QIE ecosystem — fast, secure, and transparent.
             </p>
           </div>
@@ -283,7 +283,7 @@ export default function QIFlowLanding() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group bg-[#131B3D] border border-white/5 rounded-2xl p-6 hover:border-[#F6C453]/20 transition-all"
+                className="group bg-[#14110B] border border-white/5 rounded-2xl p-6 hover:border-[#F6C453]/20 transition-all"
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
@@ -292,7 +292,7 @@ export default function QIFlowLanding() {
                   {f.icon}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{f.title}</h3>
-                <p className="text-[#8B9CC8] text-sm leading-relaxed">{f.desc}</p>
+                <p className="text-[#B8B2A6] text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -304,7 +304,7 @@ export default function QIFlowLanding() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black mb-4">Get Started in Minutes</h2>
-            <p className="text-[#8B9CC8] max-w-xl mx-auto">
+            <p className="text-[#B8B2A6] max-w-xl mx-auto">
               Connect your wallet, supply assets, and start earning in three simple steps.
             </p>
           </div>
@@ -316,7 +316,7 @@ export default function QIFlowLanding() {
                   {s.num}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{s.title}</h3>
-                <p className="text-[#8B9CC8] text-sm leading-relaxed">{s.desc}</p>
+                <p className="text-[#B8B2A6] text-sm leading-relaxed">{s.desc}</p>
                 {i < 2 && (
                   <ChevronRight className="hidden md:block absolute top-4 -right-3 w-6 h-6 text-[#F6C453]/40" />
                 )}
@@ -329,12 +329,12 @@ export default function QIFlowLanding() {
       {/* Add Network CTA */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="relative overflow-hidden rounded-3xl border border-[#F6C453]/20 bg-gradient-to-br from-[#131B3D] to-[#0D1535] p-8 md:p-12 text-center">
+          <div className="relative overflow-hidden rounded-3xl border border-[#F6C453]/20 bg-gradient-to-br from-[#14110B] to-[#0B0A07] p-8 md:p-12 text-center">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#B7791F]/20 rounded-full blur-[80px] pointer-events-none" />
             <div className="relative">
               <Coins className="w-12 h-12 mx-auto mb-4 text-[#F6C453]" />
               <h2 className="text-3xl md:text-4xl font-black mb-3">Ready to Flow?</h2>
-              <p className="text-[#8B9CC8] mb-8 max-w-lg mx-auto">
+              <p className="text-[#B8B2A6] mb-8 max-w-lg mx-auto">
                 Add QIE Mainnet to your MetaMask and start lending in under 60 seconds.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -361,7 +361,7 @@ export default function QIFlowLanding() {
       {/* X/Twitter Banner Showcase */}
       <section className="py-10 px-4">
         <div className="max-w-4xl mx-auto">
-          <p className="text-xs text-center text-[#8B9CC8] mb-4 uppercase tracking-wider font-semibold">
+          <p className="text-xs text-center text-[#B8B2A6] mb-4 uppercase tracking-wider font-semibold">
             Official QIFlow Banner
           </p>
           <div className="rounded-2xl overflow-hidden border border-white/5 shadow-2xl shadow-[#B7791F]/10">
@@ -376,7 +376,7 @@ export default function QIFlowLanding() {
 
       {/* Footer */}
       <footer className="py-10 border-t border-white/5 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[#8B9CC8] text-sm">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[#B8B2A6] text-sm">
           <div className="flex items-center gap-2">
             <img
               src="https://raw.createusercontent.com/4c1916c8-5dfd-43c7-88fb-c7767562deef/"

@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#0A0F2C] text-white">
+    <div className="min-h-screen bg-[#050505] text-white">
       <Sidebar />
       <div className="md:ml-56 flex flex-col min-h-screen">
         <Navbar />

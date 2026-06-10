@@ -27,7 +27,7 @@ export default function Loading() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#0A0F2C',
+          backgroundColor: '#050505',
         }}
       >
         {/* Glow blobs */}
@@ -111,7 +111,7 @@ export default function Loading() {
             >
               QIFlow
             </h1>
-            <p style={{ color: '#8B9CC8', fontSize: 13, marginTop: 4 }}>Loading protocol data…</p>
+            <p style={{ color: '#B8B2A6', fontSize: 13, marginTop: 4 }}>Loading protocol data…</p>
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>

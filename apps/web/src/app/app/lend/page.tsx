@@ -249,7 +249,7 @@ function MarketRow({
 
   return (
     <div
-      className={`rounded-2xl border transition-all ${open ? 'border-[#F6C453]/30' : 'border-white/5'} bg-[#131B3D] overflow-hidden`}
+      className={`rounded-2xl border transition-all ${open ? 'border-[#F6C453]/30' : 'border-white/5'} bg-[#14110B] overflow-hidden`}
     >
       <button
         onClick={() => setOpen((o) => !o)}
@@ -271,31 +271,31 @@ function MarketRow({
               </span>
             )}
           </div>
-          <span className="text-xs text-[#8B9CC8]">{market.name}</span>
+          <span className="text-xs text-[#B8B2A6]">{market.name}</span>
         </div>
 
         <div className="hidden sm:grid grid-cols-3 gap-6 text-center">
           <div>
-            <div className="text-xs text-[#8B9CC8] mb-1">Supply APY</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">
+            <div className="text-xs text-[#B8B2A6] mb-1">Supply APY</div>
+            <div className="text-sm font-bold text-[#B8B2A6]">
               {isLive && protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-'}
             </div>
           </div>
           <div>
-            <div className="text-xs text-[#8B9CC8] mb-1">Collateral</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">
+            <div className="text-xs text-[#B8B2A6] mb-1">Collateral</div>
+            <div className="text-sm font-bold text-[#B8B2A6]">
               {isLive && protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-'}
             </div>
           </div>
           <div>
-            <div className="text-xs text-[#8B9CC8] mb-1">Liquidity</div>
-            <div className="text-sm font-bold text-[#8B9CC8]">
+            <div className="text-xs text-[#B8B2A6] mb-1">Liquidity</div>
+            <div className="text-sm font-bold text-[#B8B2A6]">
               {isLive && protocolData ? `${formatQie(protocolData.qie.liquidityQIE, 2)} QIE` : '-'}
             </div>
           </div>
         </div>
 
-        <div className="text-[#8B9CC8] ml-2">
+        <div className="text-[#B8B2A6] ml-2">
           {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </div>
       </button>
@@ -304,7 +304,7 @@ function MarketRow({
         <div className="px-5 pb-5 border-t border-white/5">
           <div className="pt-4 grid md:grid-cols-2 gap-4">
             <div className="space-y-3">
-              <h4 className="text-xs font-semibold text-[#8B9CC8] uppercase tracking-wider">
+              <h4 className="text-xs font-semibold text-[#B8B2A6] uppercase tracking-wider">
                 Market Info
               </h4>
               {[
@@ -340,27 +340,27 @@ function MarketRow({
                 { label: 'Description', value: market.description },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between text-sm">
-                  <span className="text-[#8B9CC8]">{label}</span>
+                  <span className="text-[#B8B2A6]">{label}</span>
                   <span className="text-white font-medium">{value}</span>
                 </div>
               ))}
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-xs font-semibold text-[#8B9CC8] uppercase tracking-wider">
+              <h4 className="text-xs font-semibold text-[#B8B2A6] uppercase tracking-wider">
                 Your Wallet
               </h4>
               {market.symbol === 'QIE' ? (
-                <div className="bg-[#0D1535] rounded-xl p-4">
-                  <p className="text-xs text-[#8B9CC8] mb-1">Available to Supply</p>
+                <div className="bg-[#0B0A07] rounded-xl p-4">
+                  <p className="text-xs text-[#B8B2A6] mb-1">Available to Supply</p>
                   <p className="text-lg font-bold text-[#F6C453]">
                     {qieBalance ? `${formatQie(qieBalance)} QIE` : '-'}
                   </p>
-                  <div className="mt-4 rounded-xl bg-[#131B3D] p-3">
+                  <div className="mt-4 rounded-xl bg-[#14110B] p-3">
                     <div className="flex items-center justify-between gap-3 mb-2">
                       <label
                         htmlFor="qie-supply-amount"
-                        className="text-[10px] text-[#8B9CC8] font-semibold uppercase tracking-wider"
+                        className="text-[10px] text-[#B8B2A6] font-semibold uppercase tracking-wider"
                       >
                         Amount
                       </label>
@@ -381,19 +381,19 @@ function MarketRow({
                         onChange={(event) => setAmount(event.target.value)}
                         inputMode="decimal"
                         placeholder="0.00"
-                        className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                        className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#B8B2A6]/50"
                       />
-                      <span className="text-sm font-bold text-[#8B9CC8]">QIE</span>
+                      <span className="text-sm font-bold text-[#B8B2A6]">QIE</span>
                     </div>
-                    <p className="mt-2 text-[10px] text-[#8B9CC8]/70">
+                    <p className="mt-2 text-[10px] text-[#B8B2A6]/70">
                       Max leaves 0.01 QIE for gas.
                     </p>
                   </div>
 
-                  <div className="mt-3 rounded-xl bg-[#131B3D] p-3">
+                  <div className="mt-3 rounded-xl bg-[#14110B] p-3">
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-[10px] text-[#8B9CC8] font-semibold uppercase tracking-wider">
+                        <p className="text-[10px] text-[#B8B2A6] font-semibold uppercase tracking-wider">
                           Supplied
                         </p>
                         <p className="text-sm font-bold text-white">
@@ -422,9 +422,9 @@ function MarketRow({
                         onChange={(event) => setWithdrawAmount(event.target.value)}
                         inputMode="decimal"
                         placeholder="0.00"
-                        className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
+                        className="min-w-0 flex-1 bg-transparent text-lg font-bold text-white outline-none placeholder:text-[#B8B2A6]/50"
                       />
-                      <span className="text-sm font-bold text-[#8B9CC8]">QIE</span>
+                      <span className="text-sm font-bold text-[#B8B2A6]">QIE</span>
                     </div>
                     <button
                       onClick={handleWithdrawNative}
@@ -445,8 +445,8 @@ function MarketRow({
                   </div>
                 </div>
               ) : (
-                <div className="bg-[#0D1535] rounded-xl p-4 text-center">
-                  <p className="text-xs text-[#8B9CC8]">Market launching soon</p>
+                <div className="bg-[#0B0A07] rounded-xl p-4 text-center">
+                  <p className="text-xs text-[#B8B2A6]">Market launching soon</p>
                 </div>
               )}
 
@@ -467,7 +467,7 @@ function MarketRow({
               ) : (
                 <button
                   disabled
-                  className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[#8B9CC8] font-bold text-sm cursor-not-allowed"
+                  className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[#B8B2A6] font-bold text-sm cursor-not-allowed"
                 >
                   Market Launching Soon
                 </button>
@@ -497,7 +497,7 @@ export default function LendPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-black text-white">Lend</h1>
-        <p className="text-sm text-[#8B9CC8] mt-0.5">Supply assets to earn yield from borrowers</p>
+        <p className="text-sm text-[#B8B2A6] mt-0.5">Supply assets to earn yield from borrowers</p>
       </div>
 
       {/* Info Banner */}
@@ -505,7 +505,7 @@ export default function LendPage() {
         <Info className="w-5 h-5 text-[#F6C453] flex-shrink-0 mt-0.5" />
         <div className="text-sm">
           <p className="text-white font-semibold mb-1">How Lending Works</p>
-          <p className="text-[#8B9CC8] text-xs leading-relaxed">
+          <p className="text-[#B8B2A6] text-xs leading-relaxed">
             Supply your assets to the QIFlow liquidity pool. You'll receive qTokens as proof of your
             deposit. Interest accrues every block (~3.6s) and you can withdraw at any time. Your
             supplied assets can also serve as collateral to borrow other assets.
@@ -516,34 +516,34 @@ export default function LendPage() {
       {/* Wallet Summary */}
       {isConnected && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
-            <p className="text-xs text-[#8B9CC8] mb-1">QIE Balance</p>
+          <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
+            <p className="text-xs text-[#B8B2A6] mb-1">QIE Balance</p>
             <p className="text-lg font-bold text-white">
               {walletData?.balanceQIE ? formatQie(walletData.balanceQIE) : '-'}{' '}
-              <span className="text-sm text-[#8B9CC8]">QIE</span>
+              <span className="text-sm text-[#B8B2A6]">QIE</span>
             </p>
           </div>
-          <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
-            <p className="text-xs text-[#8B9CC8] mb-1">Total Supplied</p>
+          <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
+            <p className="text-xs text-[#B8B2A6] mb-1">Total Supplied</p>
             <p className="text-lg font-bold text-white">
               {formatQie(protocolData?.qie.userSupplyQIE)}{' '}
-              <span className="text-sm text-[#8B9CC8]">QIE</span>
+              <span className="text-sm text-[#B8B2A6]">QIE</span>
             </p>
-            <p className="text-xs text-[#8B9CC8]">From QIFlowPool</p>
+            <p className="text-xs text-[#B8B2A6]">From QIFlowPool</p>
           </div>
-          <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
-            <p className="text-xs text-[#8B9CC8] mb-1">Net APY</p>
+          <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
+            <p className="text-xs text-[#B8B2A6] mb-1">Net APY</p>
             <p className="text-lg font-bold text-[#00E676]">
               {protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-'}
             </p>
-            <p className="text-xs text-[#8B9CC8]">Across all markets</p>
+            <p className="text-xs text-[#B8B2A6]">Across all markets</p>
           </div>
         </div>
       )}
 
       {/* Markets */}
       <div>
-        <h2 className="text-sm font-semibold text-[#8B9CC8] uppercase tracking-wider mb-3">
+        <h2 className="text-sm font-semibold text-[#B8B2A6] uppercase tracking-wider mb-3">
           Available Markets
         </h2>
         <div className="space-y-3">
@@ -567,10 +567,10 @@ export default function LendPage() {
 
       {/* Connect Prompt */}
       {!isConnected && (
-        <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-8 text-center">
+        <div className="bg-[#14110B] border border-white/5 rounded-2xl p-8 text-center">
           <Wallet className="w-10 h-10 mx-auto text-[#B7791F] mb-3" />
           <h3 className="text-base font-bold text-white mb-2">Connect to Start Lending</h3>
-          <p className="text-[#8B9CC8] text-sm mb-5 max-w-xs mx-auto">
+          <p className="text-[#B8B2A6] text-sm mb-5 max-w-xs mx-auto">
             Connect your MetaMask wallet with QIE Mainnet to supply assets and earn yield.
           </p>
           <button
@@ -590,25 +590,25 @@ export default function LendPage() {
           href="https://mainnet.qie.digital/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#B8B2A6] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Explorer
         </a>
-        <span className="text-[#8B9CC8]">·</span>
+        <span className="text-[#B8B2A6]">·</span>
         <a
           href="https://docs.qie.digital/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#B8B2A6] hover:text-[#F6C453] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           QIE Docs
         </a>
-        <span className="text-[#8B9CC8]">·</span>
+        <span className="text-[#B8B2A6]">·</span>
         <Link
           href="/app/borrow"
-          className="flex items-center gap-1.5 text-xs text-[#8B9CC8] hover:text-[#F6C453] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-[#B8B2A6] hover:text-[#F6C453] transition-colors"
         >
           Go to Borrow <ArrowRight className="w-3.5 h-3.5" />
         </Link>
