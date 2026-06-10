@@ -120,6 +120,12 @@ function formatQie(value?: string | null, decimals = 4) {
   });
 }
 
+function getBufferedRepayAmount(value?: string | null) {
+  const amount = Number.parseFloat(value ?? '0');
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+  return (amount + 0.0001).toFixed(8).replace(/\.?0+$/, '');
+}
+
 function minNumericString(left?: string, right?: string) {
   const a = Number.parseFloat(left ?? '0');
   const b = Number.parseFloat(right ?? '0');
@@ -362,7 +368,7 @@ function BorrowMarketRow({
                 </p>
                 <p className="text-xs text-[#8B9CC8] mt-1">
                   {hasDebt
-                    ? `${formatQie(protocolData?.qie.userBorrowQIE)} QIE currently borrowed`
+                    ? `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE currently borrowed`
                     : 'Supply assets first to create borrow limit'}
                 </p>
               </div>
@@ -397,7 +403,7 @@ function BorrowMarketRow({
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-[#8B9CC8]">Outstanding debt</p>
                         <p className="text-sm font-bold text-white">
-                          {formatQie(protocolData?.qie.userBorrowQIE)} QIE
+                          {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
                         </p>
                       </div>
                       <div className="flex items-center rounded-xl border border-white/10 bg-[#131B3D] px-3">
@@ -409,7 +415,9 @@ function BorrowMarketRow({
                           className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
                         />
                         <button
-                          onClick={() => setRepayAmount(protocolData?.qie.userBorrowQIE ?? '')}
+                          onClick={() =>
+                            setRepayAmount(getBufferedRepayAmount(protocolData?.qie.userBorrowQIE))
+                          }
                           className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
                         >
                           Max
@@ -483,7 +491,7 @@ export default function BorrowPage() {
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#8B9CC8] mb-1">Used</p>
             <p className="text-lg font-bold text-white">
-              {formatQie(protocolData?.qie.userBorrowQIE)} QIE
+              {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
             </p>
           </div>
           <div className="bg-[#131B3D] border border-white/5 rounded-2xl p-4">

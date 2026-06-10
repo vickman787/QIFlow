@@ -109,6 +109,7 @@ interface ProtocolData {
     utilizationPct: number;
     liquidityQIE: string;
     userSupplyQIE: string;
+    userBorrowQIE: string;
   };
 }
 
@@ -155,6 +156,7 @@ function MarketRow({
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const isLive = market.status === 'live';
   const hasSuppliedQie = Number.parseFloat(protocolData?.qie.userSupplyQIE ?? '0') > 0;
+  const hasBorrowedQie = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0') > 0;
 
   const handleSupplyNative = async () => {
     if (!isConnected) {
@@ -401,7 +403,13 @@ function MarketRow({
                       {hasSuppliedQie && (
                         <button
                           type="button"
-                          onClick={() => setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '')}
+                          onClick={() => {
+                            if (hasBorrowedQie) {
+                              toast.error('Repay your remaining borrowed QIE before withdrawing all supplied QIE.');
+                              return;
+                            }
+                            setWithdrawAmount(protocolData?.qie.userSupplyQIE ?? '');
+                          }}
                           className="text-xs text-[#00D4FF] hover:text-white transition-colors"
                         >
                           Max
@@ -420,11 +428,20 @@ function MarketRow({
                     </div>
                     <button
                       onClick={handleWithdrawNative}
-                      disabled={isWithdrawing || !withdrawAmount.trim() || !hasSuppliedQie}
+                      disabled={isWithdrawing || !withdrawAmount.trim() || !hasSuppliedQie || hasBorrowedQie}
                       className="mt-3 w-full rounded-xl border border-[#00D4FF]/30 px-4 py-2.5 text-sm font-bold text-[#00D4FF] transition-colors hover:bg-[#00D4FF]/10 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {isWithdrawing ? 'Withdrawing...' : 'Withdraw QIE'}
+                      {isWithdrawing
+                        ? 'Withdrawing...'
+                        : hasBorrowedQie
+                          ? 'Repay Debt Before Withdraw'
+                          : 'Withdraw QIE'}
                     </button>
+                    {hasBorrowedQie && (
+                      <p className="mt-2 text-xs text-yellow-400">
+                        Remaining debt: {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE. Repay it first to withdraw all supplied QIE.
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (

@@ -36,7 +36,7 @@ function decodeAddress(data: string) {
   return `0x${word}`;
 }
 
-function formatUnits(value: bigint, decimals = 18, precision = 6) {
+function formatUnits(value: bigint, decimals = 18, precision = 12) {
   const base = 10n ** BigInt(decimals);
   const whole = value / base;
   const fraction = value % base;

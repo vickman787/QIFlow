@@ -111,6 +111,12 @@ function formatQie(value?: string | null, decimals = 4) {
   });
 }
 
+function getBufferedRepayAmount(value?: string | null) {
+  const amount = Number.parseFloat(value ?? '0');
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+  return (amount + 0.0001).toFixed(8).replace(/\.?0+$/, '');
+}
+
 export default function PortfolioPage() {
   const {
     account,
@@ -408,7 +414,7 @@ export default function PortfolioPage() {
             <span className="text-xs text-[#8B9CC8]">Protocol Borrow</span>
           </div>
           <p className="text-lg font-bold text-white">
-            {formatQie(protocolData?.qie.userBorrowQIE)}
+            {formatQie(protocolData?.qie.userBorrowQIE, 8)}
           </p>
           <p className="text-xs text-[#8B9CC8]">QIE borrowed</p>
         </div>
@@ -519,7 +525,7 @@ export default function PortfolioPage() {
                 <div>
                   <p className="text-xs text-[#8B9CC8]">Borrowed</p>
                   <p className="text-sm font-bold text-white">
-                    {formatQie(protocolData?.qie.userBorrowQIE)} QIE
+                    {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
                   </p>
                 </div>
                 <div>
@@ -541,7 +547,9 @@ export default function PortfolioPage() {
                   className="min-w-0 flex-1 bg-transparent py-3 text-sm font-bold text-white outline-none placeholder:text-[#8B9CC8]/50"
                 />
                 <button
-                  onClick={() => setRepayAmount(protocolData?.qie.userBorrowQIE ?? '')}
+                  onClick={() =>
+                    setRepayAmount(getBufferedRepayAmount(protocolData?.qie.userBorrowQIE))
+                  }
                   className="rounded-lg px-2 py-1 text-xs font-bold text-[#00D4FF] hover:bg-[#00D4FF]/10"
                 >
                   Max
