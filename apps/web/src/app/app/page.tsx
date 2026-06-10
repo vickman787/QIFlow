@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useWeb3 } from '@/context/Web3Context';
 import Link from 'next/link';
 import {
-  Activity,
   ArrowRight,
   TrendingUp,
   ArrowDownUp,
@@ -14,33 +13,10 @@ import {
   RefreshCw,
   HandCoins,
   Briefcase,
-  Globe,
-  Zap,
   Copy,
   Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface QieStats {
-  mainnet: {
-    blockNumber: number | null;
-    gasPriceGwei: string | null;
-    online: boolean;
-    blockTime: number;
-  };
-}
-
-function useNetworkStats() {
-  return useQuery<QieStats>({
-    queryKey: ['qie-stats'],
-    queryFn: async () => {
-      const res = await fetch('/api/qie/stats');
-      if (!res.ok) throw new Error('Failed to fetch');
-      return res.json();
-    },
-    refetchInterval: 15000,
-  });
-}
 
 function useWalletData(address: string | null) {
   return useQuery({
@@ -132,7 +108,6 @@ function ActionCard({
 
 export default function Dashboard() {
   const { account, isConnected, connect, isConnecting, isCorrectNetwork, switchToQIE } = useWeb3();
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useNetworkStats();
   const { data: walletData, refetch: refetchWallet } = useWalletData(account);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -155,7 +130,7 @@ export default function Dashboard() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await Promise.all([refetchStats(), refetchWallet()]);
+      await refetchWallet();
       toast.success('Dashboard refreshed.');
     } catch {
       toast.error('Failed to refresh dashboard.');
@@ -202,48 +177,6 @@ export default function Dashboard() {
           </button>
         </div>
       )}
-
-      {/* Live Network Stats */}
-      <div>
-        <div className="flex items-center gap-2 mb-3">
-          <h2 className="text-sm font-semibold text-[#B8B2A6] uppercase tracking-wider">
-            Live Network
-          </h2>
-          {stats?.mainnet.online && (
-            <span className="flex items-center gap-1 text-xs text-[#F6C453]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#F6C453]" />
-              Online
-            </span>
-          )}
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard
-            label="Latest Block"
-            value={
-              stats?.mainnet.blockNumber
-                ? `#${stats.mainnet.blockNumber.toLocaleString()}`
-                : statsLoading
-                  ? '...'
-                  : '—'
-            }
-            sub="QIE Mainnet"
-            icon={<Activity className="w-5 h-5" />}
-            live={stats?.mainnet.online}
-          />
-          <StatCard
-            label="Gas Price"
-            value={stats?.mainnet.gasPriceGwei ? `${stats.mainnet.gasPriceGwei} Gwei` : '—'}
-            sub="Current"
-            icon={<Zap className="w-5 h-5" />}
-          />
-          <StatCard
-            label="Block Time"
-            value="~3.6s"
-            sub="Proof of Authority"
-            icon={<Globe className="w-5 h-5" />}
-          />
-        </div>
-      </div>
 
       {/* Wallet Section */}
       {isConnected && isCorrectNetwork ? (
