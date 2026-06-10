@@ -10,8 +10,6 @@ import {
   ExternalLink,
   Copy,
   RefreshCw,
-  TrendingUp,
-  Activity,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -52,18 +50,6 @@ function useWalletData(address: string | null) {
     },
     enabled: !!address,
     refetchInterval: 30000,
-  });
-}
-
-function useNetworkStats() {
-  return useQuery({
-    queryKey: ['qie-stats'],
-    queryFn: async () => {
-      const res = await fetch('/api/qie/stats');
-      if (!res.ok) throw new Error('Failed');
-      return res.json();
-    },
-    refetchInterval: 15000,
   });
 }
 
@@ -140,7 +126,6 @@ export default function PortfolioPage() {
   const [isClaimingRewards, setIsClaimingRewards] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { data: walletData, refetch } = useWalletData(account);
-  const { data: stats, refetch: refetchStats } = useNetworkStats();
   const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
 
   const copyAddress = () => {
@@ -189,7 +174,7 @@ export default function PortfolioPage() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await Promise.all([refetch(), refetchProtocol(), refetchStats()]);
+      await Promise.all([refetch(), refetchProtocol()]);
       toast.success('Portfolio refreshed.');
     } catch {
       toast.error('Failed to refresh portfolio.');
@@ -382,27 +367,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* On-chain Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-4 h-4 text-[#F6C453]" />
-            <span className="text-xs text-[#B8B2A6]">Transactions</span>
-          </div>
-          <p className="text-lg font-bold text-white">{walletData?.txCount ?? '—'}</p>
-          <p className="text-xs text-[#B8B2A6]">Lifetime on QIE</p>
-        </div>
-
-        <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-[#B7791F]" />
-            <span className="text-xs text-[#B8B2A6]">Latest Block</span>
-          </div>
-          <p className="text-lg font-bold text-white">
-            {stats?.mainnet?.blockNumber ? `#${stats.mainnet.blockNumber.toLocaleString()}` : '—'}
-          </p>
-          <p className="text-xs text-[#B8B2A6]">QIE Mainnet</p>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <Wallet className="w-4 h-4 text-[#F6C453]" />
