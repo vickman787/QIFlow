@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -10,58 +9,10 @@ import {
   TrendingUp,
   Layers,
   ChevronRight,
-  Activity,
-  Globe,
-  Lock,
   Coins,
 } from 'lucide-react';
 
-interface QieStats {
-  mainnet: {
-    blockNumber: number | null;
-    gasPriceGwei: string | null;
-    chainId: number;
-    online: boolean;
-    blockTime: number;
-  };
-}
-
-function useNetworkStats() {
-  return useQuery<QieStats>({
-    queryKey: ['qie-stats'],
-    queryFn: async () => {
-      const res = await fetch('/api/qie/stats');
-      if (!res.ok) throw new Error('Failed to fetch');
-      return res.json();
-    },
-    refetchInterval: 15000,
-    staleTime: 10000,
-  });
-}
-
-function StatPulse({ online }: { online: boolean }) {
-  return (
-    <span className="relative flex h-2 w-2">
-      {online && (
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F6C453] opacity-75" />
-      )}
-      <span
-        className={`relative inline-flex rounded-full h-2 w-2 ${online ? 'bg-[#F6C453]' : 'bg-red-500'}`}
-      />
-    </span>
-  );
-}
-
 export default function QIFlowLanding() {
-  const { data: stats } = useNetworkStats();
-  const [blockTick, setBlockTick] = useState(0);
-
-  useEffect(() => {
-    if (stats?.mainnet?.blockNumber) {
-      setBlockTick(stats.mainnet.blockNumber);
-    }
-  }, [stats?.mainnet?.blockNumber]);
-
   const features = [
     {
       icon: <TrendingUp className="w-6 h-6" />,
@@ -124,13 +75,6 @@ export default function QIFlowLanding() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Live network indicator */}
-            {stats && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#14110B] border border-white/10 text-xs text-[#B8B2A6]">
-                <StatPulse online={stats.mainnet.online} />
-                <span>Block #{blockTick?.toLocaleString()}</span>
-              </div>
-            )}
             <Link
               href="/app"
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white text-sm font-semibold hover:opacity-90 transition-all shadow-lg shadow-[#B7791F]/30"
@@ -184,61 +128,6 @@ export default function QIFlowLanding() {
             >
               Read Docs <ChevronRight className="w-5 h-5" />
             </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Live Network Stats */}
-      <section className="px-4 pb-20">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              {
-                label: 'Network',
-                value: stats?.mainnet.online ? 'Online' : 'Connecting...',
-                sub: 'QIE Mainnet',
-                icon: <Globe className="w-4 h-4 text-[#F6C453]" />,
-                live: true,
-              },
-              {
-                label: 'Latest Block',
-                value: stats?.mainnet.blockNumber
-                  ? `#${stats.mainnet.blockNumber.toLocaleString()}`
-                  : '—',
-                sub: 'Chain ID: 1990',
-                icon: <Activity className="w-4 h-4 text-[#B7791F]" />,
-                live: true,
-              },
-              {
-                label: 'Gas Price',
-                value: stats?.mainnet.gasPriceGwei ? `${stats.mainnet.gasPriceGwei} Gwei` : '—',
-                sub: 'Current',
-                icon: <Zap className="w-4 h-4 text-[#F6C453]" />,
-                live: false,
-              },
-              {
-                label: 'Block Time',
-                value: '~3.6s',
-                sub: 'Proof of Authority',
-                icon: <Lock className="w-4 h-4 text-[#B7791F]" />,
-                live: false,
-              },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="bg-[#14110B] border border-white/5 rounded-2xl p-4 flex flex-col gap-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#B8B2A6] font-medium">{item.label}</span>
-                  <div className="flex items-center gap-1.5">
-                    {item.live && stats?.mainnet.online && <StatPulse online />}
-                    {item.icon}
-                  </div>
-                </div>
-                <div className="text-lg font-bold text-white">{item.value}</div>
-                <div className="text-xs text-[#B8B2A6]">{item.sub}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

@@ -21,7 +21,6 @@ const NAV_LINKS = [
   { href: '/app/lend', label: 'Lend' },
   { href: '/app/borrow', label: 'Borrow' },
   { href: '/app/portfolio', label: 'Portfolio' },
-  { href: '/contracts', label: 'Contracts' },
 ];
 
 function WalletMenu({
