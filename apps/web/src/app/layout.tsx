@@ -3,8 +3,7 @@ import type { Metadata } from 'next';
 import './global.css';
 import { Providers } from './providers';
 
-const BANNER =
-  'https://dtvoeevhaseb5.cloudfront.net/user-uploads/3ed5efbe-e93a-4553-aa1c-efd3a7eadc15.jpg';
+const BANNER = '/qiflow-banner-solar-gold.png';
 const LOGO = '/qiflow-logo-gold.svg';
 const DESC =
   'Supply assets and borrow against collateral on QIE Blockchain. Flow into decentralized finance.';

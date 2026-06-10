@@ -366,7 +366,7 @@ export default function QIFlowLanding() {
           </p>
           <div className="rounded-2xl overflow-hidden border border-white/5 shadow-2xl shadow-[#B7791F]/10">
             <img
-              src="https://raw.createusercontent.com/ab5e9c05-d5d5-4473-b4cf-c1fa3d05916f/"
+              src="/qiflow-banner-solar-gold.png"
               alt="QIFlow Protocol Banner"
               className="w-full h-auto object-cover"
             />
