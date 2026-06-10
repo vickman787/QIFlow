@@ -184,7 +184,7 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-[#B8B2A6] uppercase tracking-wider mb-3">
             Your Wallet
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3">
             <StatCard
               label="QIE Balance"
               value={
@@ -195,12 +195,6 @@ export default function Dashboard() {
               sub={account ? `${account.slice(0, 8)}...${account.slice(-6)}` : ''}
               icon={<Wallet className="w-5 h-5" />}
               gradient
-            />
-            <StatCard
-              label="Explorer"
-              value="View Account"
-              sub={`${account?.slice(0, 6)}...${account?.slice(-4)}`}
-              icon={<ArrowRight className="w-5 h-5" />}
             />
           </div>
         </div>
