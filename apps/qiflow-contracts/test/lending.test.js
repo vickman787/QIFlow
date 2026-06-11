@@ -289,6 +289,24 @@ describe('QIFlow Protocol', function () {
       const hfAfter = await pool.getHealthFactor(alice.address);
       expect(hfAfter).to.be.gt(hfBefore);
     });
+
+    it('does not inflate supplied QIE when native debt is repaid', async function () {
+      const QIFlowPool = await ethers.getContractFactory('QIFlowPool');
+      const freshPool = await QIFlowPool.deploy(
+        deployer.address,
+        await irm.getAddress(),
+        await oracle.getAddress()
+      );
+
+      await freshPool.listNativeMarket(ethers.parseEther('0.75'), ethers.parseEther('0.10'));
+      await freshPool.connect(alice).supplyNative({ value: ethers.parseEther('10') });
+      await freshPool.connect(alice).borrowNative(ethers.parseEther('2'));
+
+      await freshPool.connect(alice).repayNative({ value: ethers.parseEther('2') });
+
+      const supplyAfterRepay = await freshPool.getUserSupplyBalance(alice.address, NATIVE_QIE);
+      expect(supplyAfterRepay).to.be.closeTo(ethers.parseEther('10'), ethers.parseEther('0.001'));
+    });
   });
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -383,4 +401,3 @@ describe('QIFlow Protocol', function () {
     });
   });
 });
-

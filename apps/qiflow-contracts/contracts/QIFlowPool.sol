@@ -293,7 +293,9 @@ contract QIFlowPool is ReentrancyGuard, Pausable, Ownable {
     function repayNative()
         external payable nonReentrant whenNotPaused marketListed(NATIVE_QIE)
     {
-        accrueInterest(NATIVE_QIE);
+        // Exclude the incoming repayment from cash while debt is still outstanding.
+        uint256 cashPrior = address(this).balance - msg.value;
+        _accrueInterestWithCash(NATIVE_QIE, cashPrior);
         _updateBorrowIndex(msg.sender, NATIVE_QIE);
         uint256 debt = userBorrow[msg.sender][NATIVE_QIE].principal;
         uint256 amount = msg.value;
@@ -500,4 +502,3 @@ contract QIFlowPool is ReentrancyGuard, Pausable, Ownable {
         emit ReservesWithdrawn(asset, amount, to);
     }
 }
-
