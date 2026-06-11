@@ -67,7 +67,7 @@ const MARKETS = [
   {
     symbol: 'QIE',
     name: 'QIE (Native)',
-    icon: 'QIE',
+    icon: '⚡',
     color: '#F6C453',
     description: 'The native token of QIE Blockchain',
     status: 'live',
@@ -75,7 +75,7 @@ const MARKETS = [
   {
     symbol: 'USDC',
     name: 'USD Coin',
-    icon: 'USDC',
+    icon: '💵',
     color: '#2775CA',
     description: 'Stablecoin pegged to the US Dollar',
     status: 'launching',
@@ -83,7 +83,7 @@ const MARKETS = [
   {
     symbol: 'WBTC',
     name: 'Wrapped Bitcoin',
-    icon: 'BTC',
+    icon: '₿',
     color: '#F7931A',
     description: 'Bitcoin, wrapped for QIE Blockchain',
     status: 'launching',
@@ -262,7 +262,7 @@ function MarketRow({
         className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-white/2 transition-colors"
       >
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
           style={{ background: `${market.color}20` }}
         >
           {market.icon}
