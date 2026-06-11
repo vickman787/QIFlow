@@ -8,6 +8,7 @@
     "test:verbose": "hardhat test --verbose",
     "deploy:testnet": "hardhat run scripts/deploy.js --network qie_testnet",
     "deploy:mainnet": "hardhat run scripts/deploy.js --network qie_mainnet",
+    "deploy:v2:mainnet": "hardhat run scripts/deploy-v2.js --network qie_mainnet",
     "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
     "node": "hardhat node",
     "clean": "hardhat clean"

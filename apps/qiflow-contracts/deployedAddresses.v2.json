@@ -1,0 +1,22 @@
+{
+  "network": "qie_mainnet",
+  "chainId": 1990,
+  "deployedAt": "2026-06-11T20:09:11.036Z",
+  "deployer": "0xeAEBE00C8De565C5fb29872d059bD062b968CcF7",
+  "previousPool": "0xc2BFd5E003c605CF39f66C01313856a06a9d3eE0",
+  "contracts": {
+    "QIFlowToken": "0x8aff94408452a31e9D566468cf76fCA155c7538F",
+    "InterestRateModel": "0xBc59a7Fe22f2D56A6F7F0B7ab996C46c94Bbeb91",
+    "QIFlowOracle": "0xA51482Fdd51355165dd81e770EAA072354831C97",
+    "QIFlowPool": "0x06A47cAdA87cC2ef4337678927493cf1287b68Ea",
+    "QIFlowRewards": "0xDFbb9BD9E2093EFE73388f1Ef83194FeF481D3c4",
+    "QIFlowLens": "0x5762Cc5fEc86A71aff70E1D12bCd3bE4062d2DF1"
+  },
+  "config": {
+    "qieCollateralFactor": "75%",
+    "reserveFactor": "10%",
+    "qieSupplyRewardSpeed": "0.001 QIF/sec",
+    "qieBorrowRewardSpeed": "0.0005 QIF/sec",
+    "rewardFundAmountQIF": "1000000.0"
+  }
+}

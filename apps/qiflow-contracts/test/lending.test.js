@@ -309,6 +309,34 @@ describe('QIFlow Protocol', function () {
     });
   });
 
+  describe('QIFlowRewards — Accrual Boundaries', function () {
+    it('does not give a new supplier rewards for idle time before supply', async function () {
+      await rewards.setRewardSpeed(NATIVE_QIE, ethers.parseEther('0.001'), 0);
+
+      await ethers.provider.send('evm_increaseTime', [24 * 60 * 60]);
+      await ethers.provider.send('evm_mine');
+
+      await pool.connect(alice).supplyNative({ value: ethers.parseEther('10') });
+
+      const pending = await rewards.getPendingRewards(alice.address);
+      expect(pending).to.equal(0);
+    });
+
+    it('does not give a new borrower rewards for idle time before borrow', async function () {
+      await rewards.setRewardSpeed(NATIVE_QIE, 0, ethers.parseEther('0.001'));
+      await pool.connect(alice).supplyNative({ value: ethers.parseEther('10') });
+      await pool.connect(bob).supplyNative({ value: ethers.parseEther('10') });
+
+      await ethers.provider.send('evm_increaseTime', [24 * 60 * 60]);
+      await ethers.provider.send('evm_mine');
+
+      await pool.connect(alice).borrowNative(ethers.parseEther('2'));
+
+      const pending = await rewards.getPendingRewards(alice.address);
+      expect(pending).to.equal(0);
+    });
+  });
+
   // ──────────────────────────────────────────────────────────────────────────
   describe('QIFlowPool — Liquidation', function () {
     beforeEach(async function () {

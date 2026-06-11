@@ -191,10 +191,10 @@ contract QIFlowPool is ReentrancyGuard, Pausable, Ownable {
         Market storage market = markets[asset];
         uint256 qTokens = (amount * BASE) / market.exchangeRate;
         require(qTokens > 0, "QIFlowPool: zero qTokens");
+        _notifyRewards(user, asset);
         market.totalSupplyQTokens += qTokens;
         userSupply[user][asset].qTokenBalance += qTokens;
         _enterMarket(user, asset);
-        _notifyRewards(user, asset);
         emit Supply(user, asset, amount, qTokens);
     }
 
@@ -227,11 +227,11 @@ contract QIFlowPool is ReentrancyGuard, Pausable, Ownable {
         uint256 qTokensToBurn = (amount * BASE) / market.exchangeRate;
         if (qTokensToBurn > qTokenBalance) qTokensToBurn = qTokenBalance;
 
+        _notifyRewards(user, asset);
         market.totalSupplyQTokens -= qTokensToBurn;
         sup.qTokenBalance -= qTokensToBurn;
 
         require(_getHealthFactor(user) >= BASE, "QIFlowPool: withdrawal would cause undercollateralization");
-        _notifyRewards(user, asset);
 
         if (market.isNative) {
             (bool ok, ) = user.call{value: amount}("");
@@ -267,12 +267,12 @@ contract QIFlowPool is ReentrancyGuard, Pausable, Ownable {
     function _borrow(address user, address asset, uint256 amount) internal {
         require(_getCash(asset) >= amount, "QIFlowPool: insufficient liquidity in pool");
         _updateBorrowIndex(user, asset);
+        _notifyRewards(user, asset);
         userBorrow[user][asset].principal += amount;
         userBorrow[user][asset].interestIndex = markets[asset].borrowIndex;
         markets[asset].totalBorrows += amount;
         _enterMarket(user, asset);
         require(_getHealthFactor(user) >= BASE, "QIFlowPool: insufficient collateral");
-        _notifyRewards(user, asset);
         emit Borrow(user, asset, amount);
     }
 
@@ -308,9 +308,9 @@ contract QIFlowPool is ReentrancyGuard, Pausable, Ownable {
     }
 
     function _repay(address user, address asset, uint256 amount) internal {
+        _notifyRewards(user, asset);
         userBorrow[user][asset].principal -= amount;
         markets[asset].totalBorrows -= amount;
-        _notifyRewards(user, asset);
         emit Repay(user, asset, amount);
     }
 
