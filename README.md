@@ -57,10 +57,10 @@ cd apps/web
 yarn dev
 ```
 
-The web app runs on:
+The live web app is available at:
 
 ```txt
-http://localhost:4000
+https://qiflow-rho.vercel.app/
 ```
 
 ## Smart Contracts
