@@ -63,33 +63,6 @@ The live web app is available at:
 https://qiflow-rho.vercel.app/
 ```
 
-### QIE Price Source
-
-The web app reads QIE market price from CoinGecko or CoinMarketCap when those
-sources are configured. If neither external source returns a price, it falls
-back to the on-chain `QIFlowOracle` so USD values still render.
-
-Use CoinGecko:
-
-```txt
-QIE_PRICE_SOURCE=coingecko
-QIE_COINGECKO_ID=<coingecko-coin-id>
-```
-
-Use CoinMarketCap:
-
-```txt
-QIE_PRICE_SOURCE=coinmarketcap
-COINMARKETCAP_API_KEY=<coinmarketcap-api-key>
-QIE_CMC_SYMBOL=QIE
-```
-
-If CoinMarketCap gives QIE a numeric asset id, prefer:
-
-```txt
-QIE_CMC_ID=<coinmarketcap-asset-id>
-```
-
 ## Smart Contracts
 
 Go to the contracts workspace:
