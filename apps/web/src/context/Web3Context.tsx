@@ -32,7 +32,6 @@ interface Web3State {
   isConnected: boolean;
   isCorrectNetwork: boolean;
   qieBalance: string | null;
-  qieBalanceUSD: string | null;
   connect: () => Promise<void>;
   disconnect: () => void;
   switchToQIE: () => Promise<void>;
@@ -46,7 +45,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [chainId, setChainId] = useState<number | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [qieBalance, setQieBalance] = useState<string | null>(null);
-  const [qieBalanceUSD, setQieBalanceUSD] = useState<string | null>(null);
 
   const isConnected = !!account;
   const isCorrectNetwork = chainId === 1990;
@@ -57,7 +55,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setQieBalance(data.balanceQIE);
-        setQieBalanceUSD(data.balanceUSD);
       }
     } catch {
       // silent
@@ -100,7 +97,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     setAccount(null);
     setChainId(null);
     setQieBalance(null);
-    setQieBalanceUSD(null);
     toast.info('Wallet disconnected.');
   }, []);
 
@@ -185,7 +181,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         isConnected,
         isCorrectNetwork,
         qieBalance,
-        qieBalanceUSD,
         connect,
         disconnect,
         switchToQIE,

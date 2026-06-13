@@ -27,7 +27,6 @@ function WalletMenu({
   account,
   chainId,
   qieBalance,
-  qieBalanceUSD,
   isCorrectNetwork,
   switchToQIE,
   disconnect,
@@ -35,7 +34,6 @@ function WalletMenu({
   account: string;
   chainId: number | null;
   qieBalance: string | null;
-  qieBalanceUSD: string | null;
   isCorrectNetwork: boolean;
   switchToQIE: () => void;
   disconnect: () => void;
@@ -43,18 +41,6 @@ function WalletMenu({
   const [open, setOpen] = useState(false);
 
   const short = `${account.slice(0, 6)}...${account.slice(-4)}`;
-  const usdBalance = (() => {
-    if (!qieBalanceUSD) return null;
-    const amount = Number.parseFloat(qieBalanceUSD);
-    if (!Number.isFinite(amount)) return null;
-    if (amount > 0 && amount < 0.01) return '< $0.01';
-    return amount.toLocaleString(undefined, {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  })();
 
   const copyAddress = () => {
     navigator.clipboard.writeText(account);
@@ -95,7 +81,6 @@ function WalletMenu({
                   {parseFloat(qieBalance).toFixed(4)} QIE
                 </p>
               )}
-              {usdBalance && <p className="text-xs text-[#B8B2A6] mt-0.5">{usdBalance}</p>}
               <div className="mt-2 flex items-center gap-1 text-xs text-[#B8B2A6]">
                 <div className="w-2 h-2 rounded-full bg-[#F6C453]" />
                 {isCorrectNetwork ? 'QIE Mainnet' : `Chain ${chainId}`}
@@ -156,7 +141,6 @@ export default function Navbar() {
     account,
     chainId,
     qieBalance,
-    qieBalanceUSD,
     isConnecting,
     isConnected,
     isCorrectNetwork,
@@ -204,7 +188,6 @@ export default function Navbar() {
               account={account!}
               chainId={chainId}
               qieBalance={qieBalance}
-              qieBalanceUSD={qieBalanceUSD}
               isCorrectNetwork={isCorrectNetwork}
               switchToQIE={switchToQIE}
               disconnect={disconnect}
