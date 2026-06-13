@@ -13,6 +13,7 @@ const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 const NATIVE_GAS_BUFFER_WEI = 10_000_000_000_000_000n;
 const MAX_UINT256 = (1n << 256n) - 1n;
+const QIE_TOKEN_LOGO = '/qie-token-logo.png';
 
 function parseQieToWei(value: string) {
   const trimmed = value.trim();
@@ -48,6 +49,14 @@ function formatQie(value?: string | null, decimals = 4) {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
   });
+}
+
+function AssetIcon({ market }: { market: (typeof MARKETS)[number] }) {
+  if (market.symbol === 'QIE') {
+    return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
+  }
+
+  return <span>{market.icon}</span>;
 }
 
 function getSafeMaxSupplyAmount(balance?: string | null) {
@@ -265,7 +274,7 @@ function MarketRow({
           className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
           style={{ background: `${market.color}20` }}
         >
-          {market.icon}
+          <AssetIcon market={market} />
         </div>
 
         <div className="flex-1 min-w-0">

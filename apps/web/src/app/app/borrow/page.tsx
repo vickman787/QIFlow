@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 const BORROW_NATIVE_SELECTOR = '0x884b9343';
 const REPAY_NATIVE_SELECTOR = '0xedba8209';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+const QIE_TOKEN_LOGO = '/qie-token-logo.png';
 
 function parseQieToWei(value: string) {
   const trimmed = value.trim();
@@ -37,6 +38,14 @@ function parseQieToWei(value: string) {
 
 function encodeUint256(value: string) {
   return value.replace(/^0x/, '').padStart(64, '0');
+}
+
+function AssetIcon({ market }: { market: (typeof BORROW_MARKETS)[number] }) {
+  if (market.symbol === 'QIE') {
+    return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
+  }
+
+  return <span>{market.icon}</span>;
 }
 
 const BORROW_MARKETS = [
@@ -291,7 +300,7 @@ function BorrowMarketRow({
           className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
           style={{ background: `${market.color}20` }}
         >
-          {market.icon}
+          <AssetIcon market={market} />
         </div>
 
         <div className="flex-1 min-w-0">

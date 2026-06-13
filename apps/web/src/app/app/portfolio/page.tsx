@@ -18,6 +18,7 @@ const WITHDRAW_NATIVE_SELECTOR = '0x84276d81';
 const REPAY_NATIVE_SELECTOR = '0xedba8209';
 const CLAIM_REWARDS_SELECTOR = '0x372500ab';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
+const QIE_TOKEN_LOGO = '/qie-token-logo.png';
 const MAX_UINT256 = (1n << 256n) - 1n;
 
 function parseQieToWei(value: string) {
@@ -86,6 +87,10 @@ function EmptyPositions({ title, subtitle }: { title: string; subtitle: string }
       <p className="text-xs text-[#B8B2A6]/60">{subtitle}</p>
     </div>
   );
+}
+
+function QieAssetIcon() {
+  return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
 }
 
 function formatQie(value?: string | null, decimals = 4) {
@@ -405,8 +410,8 @@ export default function PortfolioPage() {
           <div className="bg-[#14110B] border border-[#F6C453]/20 rounded-2xl p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#F6C453]/10 flex items-center justify-center text-sm font-black text-[#F6C453]">
-                  QIE
+                <div className="w-11 h-11 rounded-xl bg-[#F6C453]/10 flex items-center justify-center">
+                  <QieAssetIcon />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">QIE (Native)</p>
@@ -489,8 +494,8 @@ export default function PortfolioPage() {
           <div className="bg-[#14110B] border border-[#B7791F]/20 rounded-2xl p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#B7791F]/15 flex items-center justify-center text-sm font-black text-[#F6C453]">
-                  QIE
+                <div className="w-11 h-11 rounded-xl bg-[#B7791F]/15 flex items-center justify-center">
+                  <QieAssetIcon />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white">QIE (Native)</p>
