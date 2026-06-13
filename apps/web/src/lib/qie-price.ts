@@ -4,11 +4,11 @@ const GET_PRICE_SELECTOR = '0x41976e09';
 const USD_PRICE_DECIMALS = 8;
 const USD_PRICE_SCALE = 100_000_000n;
 
-export type QiePriceSource = 'coingecko' | 'coinmarketcap' | 'oracle';
+export type QiePriceSource = 'coingecko' | 'coinmarketcap' | 'oracle' | 'unavailable';
 
 export interface QiePrice {
   priceUsd8: bigint;
-  priceUSD: string;
+  priceUSD: string | null;
   source: QiePriceSource;
   sourceId?: string;
 }
@@ -155,7 +155,18 @@ export async function getQiePrice(): Promise<QiePrice> {
       ? [getCoinMarketCapPrice, getCoinGeckoPrice]
       : [getCoinGeckoPrice, getCoinMarketCapPrice];
 
-  if (preferredSource === 'oracle') return getOraclePrice();
+  if (preferredSource === 'oracle') {
+    try {
+      return await getOraclePrice();
+    } catch (err) {
+      console.warn('[qie-price] oracle price source failed', err);
+      return {
+        priceUsd8: 0n,
+        priceUSD: null,
+        source: 'unavailable',
+      };
+    }
+  }
 
   for (const getExternalPrice of externalSources) {
     try {
@@ -166,5 +177,14 @@ export async function getQiePrice(): Promise<QiePrice> {
     }
   }
 
-  return getOraclePrice();
+  try {
+    return await getOraclePrice();
+  } catch (err) {
+    console.warn('[qie-price] oracle price source failed', err);
+    return {
+      priceUsd8: 0n,
+      priceUSD: null,
+      source: 'unavailable',
+    };
+  }
 }
