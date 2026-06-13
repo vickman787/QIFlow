@@ -17,7 +17,7 @@ export const QIE_MAINNET = {
   nativeCurrency: { name: 'QIE', symbol: 'QIE', decimals: 18 },
   rpcUrls: [QIE_MAINNET_RPC],
   blockExplorerUrls: ['https://mainnet.qie.digital/'],
-  iconUrls: ['https://qiflow-rho.vercel.app/qiflow-x-profile-picture.png'],
+  iconUrls: ['https://qiflow-rho.vercel.app/qiflow-wallet-icon.png'],
 };
 
 function getEthereum() {

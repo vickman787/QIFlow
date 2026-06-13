@@ -4,7 +4,7 @@ import './global.css';
 import { Providers } from './providers';
 
 const BANNER = '/qiflow-banner-solar-gold.png';
-const LOGO = '/qiflow-x-profile-picture.png';
+const LOGO = '/qiflow-wallet-icon.png';
 const DESC =
   'Supply assets and borrow against collateral on QIE Blockchain. Flow into decentralized finance.';
 
