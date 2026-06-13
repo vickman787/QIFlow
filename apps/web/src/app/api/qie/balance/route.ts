@@ -31,8 +31,7 @@ export async function GET(request: Request) {
 
     const balanceWei = BigInt(balanceHex);
     const balanceQIE = Number(balanceWei) / 1e18;
-    const hasPrice = qiePrice.priceUsd8 > 0n && !!qiePrice.priceUSD;
-    const balanceUsd = hasPrice ? valueUsd(balanceWei, qiePrice.priceUsd8) : null;
+    const balanceUsd = valueUsd(balanceWei, qiePrice.priceUsd8);
     const txCount = parseInt(txCountHex, 16);
 
     return Response.json({
@@ -42,8 +41,7 @@ export async function GET(request: Request) {
       qiePriceUSD: qiePrice.priceUSD,
       qiePriceSource: qiePrice.source,
       qiePriceSourceId: qiePrice.sourceId,
-      priceAvailable: hasPrice,
-      balanceUSD: balanceUsd === null ? null : formatUnits(balanceUsd),
+      balanceUSD: formatUnits(balanceUsd),
       txCount,
     });
   } catch (err) {

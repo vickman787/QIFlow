@@ -145,7 +145,6 @@ export async function GET(request: Request) {
       ethCall(`${GET_MARKET_DATA_SELECTOR}${nativeArg}`),
     ]);
     const qiePriceUsd8 = qiePrice.priceUsd8;
-    const hasPrice = qiePriceUsd8 > 0n && !!qiePrice.priceUSD;
     const market = decodeWords(marketHex);
 
     const collateralFactor = market[2] ?? 0n;
@@ -210,17 +209,16 @@ export async function GET(request: Request) {
         qiePriceUSD: qiePrice.priceUSD,
         qiePriceSource: qiePrice.source,
         qiePriceSourceId: qiePrice.sourceId,
-        priceAvailable: hasPrice,
         liquidityQIE: formatUnits(liquidity),
-        liquidityUSD: hasPrice ? formatUnits(valueUsd(liquidity, qiePriceUsd8)) : null,
+        liquidityUSD: formatUnits(valueUsd(liquidity, qiePriceUsd8)),
         totalSupplyQIE: formatUnits(totalSupply),
-        totalSupplyUSD: hasPrice ? formatUnits(valueUsd(totalSupply, qiePriceUsd8)) : null,
+        totalSupplyUSD: formatUnits(valueUsd(totalSupply, qiePriceUsd8)),
         totalBorrowsQIE: formatUnits(totalBorrows),
-        totalBorrowsUSD: hasPrice ? formatUnits(valueUsd(totalBorrows, qiePriceUsd8)) : null,
+        totalBorrowsUSD: formatUnits(valueUsd(totalBorrows, qiePriceUsd8)),
         userSupplyQIE: formatUnits(userSupply, 18, 18),
-        userSupplyUSD: hasPrice ? formatUnits(valueUsd(userSupply, qiePriceUsd8)) : null,
+        userSupplyUSD: formatUnits(valueUsd(userSupply, qiePriceUsd8)),
         userBorrowQIE: formatUnits(userBorrow, 18, 18),
-        userBorrowUSD: hasPrice ? formatUnits(valueUsd(userBorrow, qiePriceUsd8)) : null,
+        userBorrowUSD: formatUnits(valueUsd(userBorrow, qiePriceUsd8)),
         totalCollateralUSD: formatUnits(totalCollateralUSD),
         totalBorrowUSD: formatUnits(totalBorrowUSD),
         availableBorrowUSD: formatUnits(availableBorrowUSD),
