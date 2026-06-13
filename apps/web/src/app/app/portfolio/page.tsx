@@ -320,8 +320,8 @@ export default function PortfolioPage() {
       {/* Wallet Overview */}
       <div className="bg-gradient-to-br from-[#B7791F]/20 to-[#F6C453]/10 border border-[#F6C453]/20 rounded-2xl p-6">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#B7791F] to-[#F6C453] flex items-center justify-center text-2xl font-black text-white flex-shrink-0">
-            {account ? account.slice(2, 3).toUpperCase() : '?'}
+          <div className="w-14 h-14 rounded-2xl bg-[#2A2112] flex items-center justify-center text-[#F6C453] flex-shrink-0">
+            <Wallet className="w-7 h-7" strokeWidth={2.5} />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
