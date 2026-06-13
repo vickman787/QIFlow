@@ -40,6 +40,19 @@ function encodeUint256(value: string) {
   return value.replace(/^0x/, '').padStart(64, '0');
 }
 
+function formatUsd(value?: string | null) {
+  if (!value) return '-';
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '-';
+  if (amount > 0 && amount < 0.01) return '< $0.01';
+  return amount.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 function AssetIcon({ market }: { market: (typeof BORROW_MARKETS)[number] }) {
   if (market.symbol === 'QIE') {
     return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
@@ -97,11 +110,15 @@ interface ProtocolData {
     collateralFactorPct: number;
     borrowAPYPct: number;
     liquidityQIE: string;
+    liquidityUSD: string;
     userSupplyQIE: string;
+    userSupplyUSD: string;
     userBorrowQIE: string;
+    userBorrowUSD: string;
     totalCollateralUSD: string;
     totalBorrowUSD: string;
     availableBorrowUSD: string;
+    availableBorrowQIE: string;
     healthFactor: number | null;
   };
 }
@@ -194,7 +211,7 @@ function BorrowMarketRow({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isLive = market.status === 'live';
   const availableToBorrow = minNumericString(
-    protocolData?.qie.availableBorrowUSD,
+    protocolData?.qie.availableBorrowQIE,
     protocolData?.qie.liquidityQIE
   );
   const hasDebt = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0') > 0;
@@ -331,6 +348,11 @@ function BorrowMarketRow({
             <div className="text-sm font-bold text-[#B8B2A6]">
               {isLive ? `${formatQie(availableToBorrow)} QIE` : '-'}
             </div>
+            {isLive && protocolData && (
+              <div className="text-[10px] text-[#B8B2A6]/70">
+                {formatUsd(protocolData.qie.availableBorrowUSD)}
+              </div>
+            )}
           </div>
         </div>
 
@@ -373,11 +395,14 @@ function BorrowMarketRow({
               <div className="bg-[#0B0A07] rounded-xl p-4">
                 <p className="text-xs text-[#B8B2A6] mb-1">Borrow Limit</p>
                 <p className="text-lg font-bold text-white">
-                  {isLive ? `${formatQie(protocolData?.qie.availableBorrowUSD)} QIE` : '-'}
+                  {isLive ? `${formatQie(protocolData?.qie.availableBorrowQIE)} QIE` : '-'}
+                </p>
+                <p className="text-xs text-[#B8B2A6]">
+                  {formatUsd(protocolData?.qie.availableBorrowUSD)}
                 </p>
                 <p className="text-xs text-[#B8B2A6] mt-1">
                   {hasDebt
-                    ? `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE currently borrowed`
+                    ? `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE (${formatUsd(protocolData?.qie.userBorrowUSD)}) currently borrowed`
                     : 'Supply assets first to create borrow limit'}
                 </p>
               </div>
@@ -413,6 +438,9 @@ function BorrowMarketRow({
                         <p className="text-xs text-[#B8B2A6]">Outstanding debt</p>
                         <p className="text-sm font-bold text-white">
                           {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
+                        </p>
+                        <p className="text-xs text-[#B8B2A6]">
+                          {formatUsd(protocolData?.qie.userBorrowUSD)}
                         </p>
                       </div>
                       <div className="flex items-center rounded-xl border border-white/10 bg-[#14110B] px-3">
@@ -463,7 +491,7 @@ export default function BorrowPage() {
   const { refetch: refetchWallet } = useWalletBalance(account);
   const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
   const availableToBorrow = minNumericString(
-    protocolData?.qie.availableBorrowUSD,
+    protocolData?.qie.availableBorrowQIE,
     protocolData?.qie.liquidityQIE
   );
 
@@ -494,18 +522,21 @@ export default function BorrowPage() {
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Borrow Limit</p>
             <p className="text-lg font-bold text-white">
-              {formatQie(protocolData?.qie.availableBorrowUSD)} QIE
+              {formatQie(protocolData?.qie.availableBorrowQIE)} QIE
             </p>
+            <p className="text-xs text-[#B8B2A6]">{formatUsd(protocolData?.qie.availableBorrowUSD)}</p>
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Used</p>
             <p className="text-lg font-bold text-white">
               {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
             </p>
+            <p className="text-xs text-[#B8B2A6]">{formatUsd(protocolData?.qie.userBorrowUSD)}</p>
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Available</p>
             <p className="text-lg font-bold text-[#F6C453]">{formatQie(availableToBorrow)} QIE</p>
+            <p className="text-xs text-[#B8B2A6]">{formatUsd(protocolData?.qie.availableBorrowUSD)}</p>
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <HealthBar value={protocolData?.qie.healthFactor ?? null} />

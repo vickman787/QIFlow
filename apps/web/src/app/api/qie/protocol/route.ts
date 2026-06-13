@@ -9,6 +9,7 @@ const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
 const GET_USER_BORROW_BALANCE_SELECTOR = '0x888c21a1';
 const GET_USER_ACCOUNT_DATA_SELECTOR = '0xbf92857c';
 const GET_PENDING_REWARDS_SELECTOR = '0xf6ed2017';
+const GET_PRICE_SELECTOR = '0x41976e09';
 const QIF_TOKEN_SELECTOR = '0x911815a0';
 const REWARDS_CLAIMED_TOPIC =
   '0xfc30cddea38e2bf4d6ea7d3f9ed3b6ad7f176419f4963bd81318067a4aee73fe';
@@ -42,6 +43,15 @@ function formatUnits(value: bigint, decimals = 18, precision = 12) {
   const fraction = value % base;
   const fractionText = fraction.toString().padStart(decimals, '0').slice(0, precision);
   return `${whole}.${fractionText}`.replace(/\.?0+$/, '');
+}
+
+function valueUsd(amountWei: bigint, priceUsd8: bigint) {
+  return (amountWei * priceUsd8) / 100_000_000n;
+}
+
+function usdToQie(usdValue: bigint, priceUsd8: bigint) {
+  if (priceUsd8 === 0n) return 0n;
+  return (usdValue * 100_000_000n) / priceUsd8;
 }
 
 async function rpcCall(method: string, params: unknown[] = []) {
@@ -147,6 +157,11 @@ export async function GET(request: Request) {
 
   try {
     const nativeArg = encodeAddress(NATIVE_QIE_ADDRESS);
+    const qiePriceHex = await ethCall(
+      `${GET_PRICE_SELECTOR}${nativeArg}`,
+      QIFLOW_CONTRACTS.QIFlowOracle
+    );
+    const qiePriceUsd8 = decodeWords(qiePriceHex)[0] ?? 0n;
     const marketHex = await ethCall(`${GET_MARKET_DATA_SELECTOR}${nativeArg}`);
     const market = decodeWords(marketHex);
 
@@ -209,14 +224,21 @@ export async function GET(request: Request) {
         supplyAPYPct: Number((supplyRatePerSecond * SECONDS_PER_YEAR * 10_000n) / WEI_PER_QIE) / 100,
         borrowAPYPct: Number((borrowRatePerSecond * SECONDS_PER_YEAR * 10_000n) / WEI_PER_QIE) / 100,
         utilizationPct: Number((utilization * 10_000n) / WEI_PER_QIE) / 100,
+        qiePriceUSD: formatUnits(qiePriceUsd8, 8, 8),
         liquidityQIE: formatUnits(liquidity),
+        liquidityUSD: formatUnits(valueUsd(liquidity, qiePriceUsd8)),
         totalSupplyQIE: formatUnits(totalSupply),
+        totalSupplyUSD: formatUnits(valueUsd(totalSupply, qiePriceUsd8)),
         totalBorrowsQIE: formatUnits(totalBorrows),
+        totalBorrowsUSD: formatUnits(valueUsd(totalBorrows, qiePriceUsd8)),
         userSupplyQIE: formatUnits(userSupply, 18, 18),
+        userSupplyUSD: formatUnits(valueUsd(userSupply, qiePriceUsd8)),
         userBorrowQIE: formatUnits(userBorrow, 18, 18),
+        userBorrowUSD: formatUnits(valueUsd(userBorrow, qiePriceUsd8)),
         totalCollateralUSD: formatUnits(totalCollateralUSD),
         totalBorrowUSD: formatUnits(totalBorrowUSD),
         availableBorrowUSD: formatUnits(availableBorrowUSD),
+        availableBorrowQIE: formatUnits(usdToQie(availableBorrowUSD, qiePriceUsd8)),
         healthFactor: healthFactor === 2n ** 256n - 1n ? null : Number(healthFactor) / 1e18,
         pendingRewardsQIF: formatUnits(pendingRewards),
         claimedRewardsQIF: formatUnits(claimedRewards),

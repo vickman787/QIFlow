@@ -32,6 +32,19 @@ function useWalletData(address: string | null) {
   });
 }
 
+function formatUsd(value?: string | null) {
+  if (!value) return '-';
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '-';
+  if (amount > 0 && amount < 0.01) return '< $0.01';
+  return amount.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 function StatCard({
   label,
   value,
@@ -192,7 +205,11 @@ export default function Dashboard() {
                   ? `${parseFloat(walletData.balanceQIE).toFixed(4)} QIE`
                   : '...'
               }
-              sub={account ? `${account.slice(0, 8)}...${account.slice(-6)}` : ''}
+              sub={
+                account
+                  ? `${formatUsd(walletData?.balanceUSD)} / ${account.slice(0, 8)}...${account.slice(-6)}`
+                  : ''
+              }
               icon={<Wallet className="w-5 h-5" />}
               gradient
             />

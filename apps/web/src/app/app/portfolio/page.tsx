@@ -61,7 +61,9 @@ interface ProtocolData {
     borrowAPYPct: number;
     liquidityQIE: string;
     userSupplyQIE: string;
+    userSupplyUSD: string;
     userBorrowQIE: string;
+    userBorrowUSD: string;
     pendingRewardsQIF: string;
     claimedRewardsQIF: string;
   };
@@ -91,6 +93,19 @@ function EmptyPositions({ title, subtitle }: { title: string; subtitle: string }
 
 function QieAssetIcon() {
   return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
+}
+
+function formatUsd(value?: string | null) {
+  if (!value) return '-';
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '-';
+  if (amount > 0 && amount < 0.01) return '< $0.01';
+  return amount.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 function formatQie(value?: string | null, decimals = 4) {
@@ -365,7 +380,9 @@ export default function PortfolioPage() {
                     ? parseFloat(qieBalance).toFixed(4)
                     : '—'}
               </p>
-              <p className="text-xs text-[#B8B2A6]">QIE</p>
+              <p className="text-xs text-[#B8B2A6]">
+                QIE / {formatUsd(walletData?.balanceUSD)}
+              </p>
             </div>
           </div>
         </div>
@@ -381,7 +398,9 @@ export default function PortfolioPage() {
           <p className="text-lg font-bold text-white">
             {formatQie(protocolData?.qie.userSupplyQIE)}
           </p>
-          <p className="text-xs text-[#B8B2A6]">QIE supplied</p>
+          <p className="text-xs text-[#B8B2A6]">
+            QIE supplied / {formatUsd(protocolData?.qie.userSupplyUSD)}
+          </p>
         </div>
 
         <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
@@ -392,7 +411,9 @@ export default function PortfolioPage() {
           <p className="text-lg font-bold text-white">
             {formatQie(protocolData?.qie.userBorrowQIE, 8)}
           </p>
-          <p className="text-xs text-[#B8B2A6]">QIE borrowed</p>
+          <p className="text-xs text-[#B8B2A6]">
+            QIE borrowed / {formatUsd(protocolData?.qie.userBorrowUSD)}
+          </p>
         </div>
       </div>
 
@@ -424,6 +445,9 @@ export default function PortfolioPage() {
                   <p className="text-xs text-[#B8B2A6]">Supplied</p>
                   <p className="text-sm font-bold text-white">
                     {formatQie(protocolData?.qie.userSupplyQIE)} QIE
+                  </p>
+                  <p className="text-xs text-[#B8B2A6]">
+                    {formatUsd(protocolData?.qie.userSupplyUSD)}
                   </p>
                 </div>
                 <div>
@@ -508,6 +532,9 @@ export default function PortfolioPage() {
                   <p className="text-xs text-[#B8B2A6]">Borrowed</p>
                   <p className="text-sm font-bold text-white">
                     {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
+                  </p>
+                  <p className="text-xs text-[#B8B2A6]">
+                    {formatUsd(protocolData?.qie.userBorrowUSD)}
                   </p>
                 </div>
                 <div>
