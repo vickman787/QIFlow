@@ -51,16 +51,6 @@ function formatQie(value?: string | null, decimals = 4) {
   });
 }
 
-function formatUsd(value?: number | null) {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
-  return value.toLocaleString(undefined, {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: value >= 1 ? 2 : 4,
-    maximumFractionDigits: value >= 1 ? 2 : 6,
-  });
-}
-
 function AssetIcon({ market }: { market: (typeof MARKETS)[number] }) {
   if (market.symbol === 'QIE') {
     return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
@@ -126,8 +116,6 @@ function useWalletBalance(address: string | null) {
 interface ProtocolData {
   qie: {
     collateralFactorPct: number;
-    priceUSD: number | null;
-    priceSource: string;
     supplyAPYPct: number;
     totalSupplyQIE: string;
     totalBorrowsQIE: string;
@@ -338,10 +326,6 @@ function MarketRow({
                 { label: 'Asset', value: market.name },
                 { label: 'Symbol', value: market.symbol },
                 {
-                  label: 'QIE Price',
-                  value: isLive && protocolData ? formatUsd(protocolData.qie.priceUSD) : '-',
-                },
-                {
                   label: 'Collateral Factor',
                   value:
                     isLive && protocolData ? `${protocolData.qie.collateralFactorPct.toFixed(0)}%` : '-',
@@ -550,7 +534,7 @@ export default function LendPage() {
 
       {/* Wallet Summary */}
       {isConnected && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">QIE Balance</p>
             <p className="text-lg font-bold text-white">
@@ -565,11 +549,6 @@ export default function LendPage() {
               <span className="text-sm text-[#B8B2A6]">QIE</span>
             </p>
             <p className="text-xs text-[#B8B2A6]">From QIFlowPool</p>
-          </div>
-          <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
-            <p className="text-xs text-[#B8B2A6] mb-1">QIE Price</p>
-            <p className="text-lg font-bold text-white">{formatUsd(protocolData?.qie.priceUSD)}</p>
-            <p className="text-xs text-[#B8B2A6]">QIE DEX</p>
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Net APY</p>
