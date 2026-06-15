@@ -237,7 +237,7 @@ export default function Dashboard() {
               sub={account ? `${account.slice(0, 8)}...${account.slice(-6)}` : ''}
               detail={
                 walletValueUSD !== null
-                  ? `${formatUsd(walletValueUSD)} total value at ${formatUsd(qiePrice, 6)}/QIE`
+                  ? `${formatUsd(walletValueUSD)} total value`
                   : undefined
               }
               icon={<Wallet className="w-5 h-5" />}

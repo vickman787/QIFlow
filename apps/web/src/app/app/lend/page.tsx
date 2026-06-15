@@ -137,8 +137,6 @@ interface ProtocolData {
     priceUSD: number | null;
     priceSource: string;
     supplyAPYPct: number;
-    totalSupplyQIE: string;
-    totalBorrowsQIE: string;
     utilizationPct: number;
     liquidityQIE: string;
     userSupplyQIE: string;
@@ -381,31 +379,31 @@ function MarketRow({
                   value: isLive && protocolData ? `${protocolData.qie.supplyAPYPct.toFixed(2)}%` : '-',
                 },
                 {
-                  label: 'Total Supplied',
+                  label: 'Your Supplied',
                   value:
                     isLive && protocolData
-                      ? `${formatQie(protocolData.qie.totalSupplyQIE)} QIE`
+                      ? `${formatQie(protocolData.qie.userSupplyQIE)} QIE`
                       : '-',
                 },
                 {
-                  label: 'Total Supplied Value',
+                  label: 'Your Supplied Value',
                   value:
                     isLive && protocolData
-                      ? formatUsd(getQieUsdValue(protocolData.qie.totalSupplyQIE, protocolData.qie.priceUSD))
+                      ? formatUsd(getQieUsdValue(protocolData.qie.userSupplyQIE, protocolData.qie.priceUSD))
                       : '-',
                 },
                 {
-                  label: 'Total Borrowed',
+                  label: 'Your Borrowed',
                   value:
                     isLive && protocolData
-                      ? `${formatQie(protocolData.qie.totalBorrowsQIE)} QIE`
+                      ? `${formatQie(protocolData.qie.userBorrowQIE, 8)} QIE`
                       : '-',
                 },
                 {
-                  label: 'Total Borrowed Value',
+                  label: 'Your Borrowed Value',
                   value:
                     isLive && protocolData
-                      ? formatUsd(getQieUsdValue(protocolData.qie.totalBorrowsQIE, protocolData.qie.priceUSD))
+                      ? formatUsd(getQieUsdValue(protocolData.qie.userBorrowQIE, protocolData.qie.priceUSD))
                       : '-',
                 },
                 {
@@ -468,7 +466,7 @@ function MarketRow({
                     {amount.trim() && (
                       <p className="mt-2 text-xs font-medium text-[#F6C453]">
                         {typedSupplyValueUSD !== null && typeof qiePrice === 'number'
-                          ? `${formatUsd(typedSupplyValueUSD)} at ${formatUsd(qiePrice, 6)}/QIE`
+                          ? formatUsd(typedSupplyValueUSD)
                           : 'Fetching QIE price...'}
                       </p>
                     )}
@@ -622,7 +620,7 @@ export default function LendPage() {
             </p>
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
-            <p className="text-xs text-[#B8B2A6] mb-1">Total Supplied</p>
+            <p className="text-xs text-[#B8B2A6] mb-1">Your Supplied</p>
             <p className="text-lg font-bold text-white">
               {formatQie(protocolData?.qie.userSupplyQIE)}{' '}
               <span className="text-sm text-[#B8B2A6]">QIE</span>
