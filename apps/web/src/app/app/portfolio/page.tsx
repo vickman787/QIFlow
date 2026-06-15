@@ -57,6 +57,8 @@ function useWalletData(address: string | null) {
 interface ProtocolData {
   qie: {
     collateralFactorPct: number;
+    priceUSD: number | null;
+    priceSource: string;
     supplyAPYPct: number;
     borrowAPYPct: number;
     liquidityQIE: string;
@@ -103,6 +105,16 @@ function formatQie(value?: string | null, decimals = 4) {
   return amount.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
+  });
+}
+
+function formatUsd(value?: number | null) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return value.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: value >= 1 ? 2 : 4,
+    maximumFractionDigits: value >= 1 ? 2 : 6,
   });
 }
 
@@ -357,6 +369,13 @@ export default function PortfolioPage() {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
+              <p className="text-xs text-[#B8B2A6]">QIE Price</p>
+              <p className="text-xl font-black text-white">
+                {formatUsd(protocolData?.qie.priceUSD)}
+              </p>
+              <p className="text-xs text-[#B8B2A6]">QIE DEX</p>
+            </div>
+            <div className="text-right">
               <p className="text-xs text-[#B8B2A6]">QIE Balance</p>
               <p className="text-xl font-black text-white">
                 {walletData?.balanceQIE
@@ -372,7 +391,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* On-chain Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
           <div className="flex items-center gap-2 mb-2">
             <Wallet className="w-4 h-4 text-[#F6C453]" />
@@ -393,6 +412,15 @@ export default function PortfolioPage() {
             {formatQie(protocolData?.qie.userBorrowQIE, 8)}
           </p>
           <p className="text-xs text-[#B8B2A6]">QIE borrowed</p>
+        </div>
+
+        <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Wallet className="w-4 h-4 text-[#F6C453]" />
+            <span className="text-xs text-[#B8B2A6]">QIE Price</span>
+          </div>
+          <p className="text-lg font-bold text-white">{formatUsd(protocolData?.qie.priceUSD)}</p>
+          <p className="text-xs text-[#B8B2A6]">From QIE DEX WQIE/QUSDC</p>
         </div>
       </div>
 

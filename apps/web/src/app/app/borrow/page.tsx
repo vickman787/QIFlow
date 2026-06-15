@@ -95,6 +95,8 @@ function useWalletBalance(address: string | null) {
 interface ProtocolData {
   qie: {
     collateralFactorPct: number;
+    priceUSD: number | null;
+    priceSource: string;
     borrowAPYPct: number;
     liquidityQIE: string;
     userSupplyQIE: string;
@@ -126,6 +128,16 @@ function formatQie(value?: string | null, decimals = 4) {
   return amount.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
+  });
+}
+
+function formatUsd(value?: number | null) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return value.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: value >= 1 ? 2 : 4,
+    maximumFractionDigits: value >= 1 ? 2 : 6,
   });
 }
 
@@ -348,6 +360,7 @@ function BorrowMarketRow({
               </h4>
               {[
                 { label: 'Min Collateral Factor', value: `${market.minCollateralFactor}%` },
+                { label: 'QIE Price', value: isLive && protocolData ? formatUsd(protocolData.qie.priceUSD) : '-' },
                 { label: 'Liquidation Threshold', value: `${market.liquidationThreshold}%` },
                 { label: 'Liquidation Penalty', value: '10%' },
                 { label: 'Interest Rate Model', value: 'Jump Rate Model' },
@@ -490,7 +503,7 @@ export default function BorrowPage() {
 
       {/* Borrow Limits Summary */}
       {isConnected && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Borrow Limit</p>
             <p className="text-lg font-bold text-white">
@@ -506,6 +519,11 @@ export default function BorrowPage() {
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Available</p>
             <p className="text-lg font-bold text-[#F6C453]">{formatQie(availableToBorrow)} QIE</p>
+          </div>
+          <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
+            <p className="text-xs text-[#B8B2A6] mb-1">QIE Price</p>
+            <p className="text-lg font-bold text-white">{formatUsd(protocolData?.qie.priceUSD)}</p>
+            <p className="text-xs text-[#B8B2A6]">QIE DEX</p>
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <HealthBar value={protocolData?.qie.healthFactor ?? null} />
