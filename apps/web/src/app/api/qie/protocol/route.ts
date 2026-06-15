@@ -3,6 +3,7 @@ import {
   QIE_MAINNET_RPC,
   QIFLOW_CONTRACTS,
 } from '@/lib/qiflow-contracts';
+import { getQiePriceUSD, QIE_PRICE_SOURCE } from '@/lib/qie-price';
 
 const GET_MARKET_DATA_SELECTOR = '0xa30c302d';
 const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
@@ -166,6 +167,13 @@ export async function GET(request: Request) {
     let healthFactor = 0n;
     let pendingRewards = 0n;
     let claimedRewards = 0n;
+    let qiePriceUSD: number | null = null;
+
+    try {
+      qiePriceUSD = await getQiePriceUSD();
+    } catch (err) {
+      console.warn('[qie/protocol] failed to fetch QIE DEX price', err);
+    }
 
     if (address) {
       const userSupplyHex = await ethCall(
@@ -207,6 +215,8 @@ export async function GET(request: Request) {
     return Response.json({
       qie: {
         collateralFactorPct: Number((collateralFactor * 10_000n) / WEI_PER_QIE) / 100,
+        priceUSD: qiePriceUSD,
+        priceSource: QIE_PRICE_SOURCE,
         supplyAPYPct: Number((supplyRatePerSecond * SECONDS_PER_YEAR * 10_000n) / WEI_PER_QIE) / 100,
         borrowAPYPct: Number((borrowRatePerSecond * SECONDS_PER_YEAR * 10_000n) / WEI_PER_QIE) / 100,
         utilizationPct: Number((utilization * 10_000n) / WEI_PER_QIE) / 100,
