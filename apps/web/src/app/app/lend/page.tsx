@@ -51,13 +51,13 @@ function formatQie(value?: string | null, decimals = 4) {
   });
 }
 
-function formatUsd(value?: number | null) {
+function formatUsd(value?: number | null, maximumFractionDigits = 2) {
   if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
   return value.toLocaleString(undefined, {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits,
   });
 }
 
@@ -146,12 +146,30 @@ interface ProtocolData {
   };
 }
 
+interface PriceData {
+  qie: {
+    priceUSD: number | null;
+  };
+}
+
 function useProtocolData(address: string | null) {
   return useQuery<ProtocolData>({
     queryKey: ['qiflow-protocol', address],
     queryFn: async () => {
       const query = address ? `?address=${address}` : '';
       const res = await fetch(`/api/qie/protocol${query}`);
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+}
+
+function useQiePrice() {
+  return useQuery<PriceData>({
+    queryKey: ['qie-price'],
+    queryFn: async () => {
+      const res = await fetch('/api/qie/price');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -166,6 +184,7 @@ function MarketRow({
   isCorrectNetwork,
   qieBalance,
   protocolData,
+  qiePrice,
   connect,
   switchToQIE,
   refetchWallet,
@@ -177,6 +196,7 @@ function MarketRow({
   isCorrectNetwork: boolean;
   qieBalance?: string | null;
   protocolData?: ProtocolData;
+  qiePrice?: number | null;
   connect: () => Promise<void>;
   switchToQIE: () => Promise<void>;
   refetchWallet: () => void;
@@ -191,6 +211,7 @@ function MarketRow({
   const isLive = market.status === 'live';
   const hasSuppliedQie = Number.parseFloat(protocolData?.qie.userSupplyQIE ?? '0') > 0;
   const hasBorrowedQie = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0') > 0;
+  const typedSupplyValueUSD = getQieUsdValue(amount, qiePrice);
 
   const handleSupplyNative = async () => {
     if (!isConnected) {
@@ -444,6 +465,13 @@ function MarketRow({
                       />
                       <span className="text-sm font-bold text-[#B8B2A6]">QIE</span>
                     </div>
+                    {amount.trim() && (
+                      <p className="mt-2 text-xs font-medium text-[#F6C453]">
+                        {typedSupplyValueUSD !== null && typeof qiePrice === 'number'
+                          ? `${formatUsd(typedSupplyValueUSD)} at ${formatUsd(qiePrice, 6)}/QIE`
+                          : 'Fetching QIE price...'}
+                      </p>
+                    )}
                     <p className="mt-2 text-[10px] text-[#B8B2A6]/70">
                       Max leaves 0.01 QIE for gas.
                     </p>
@@ -559,6 +587,8 @@ export default function LendPage() {
   } = useWeb3();
   const { data: walletData, refetch: refetchWallet } = useWalletBalance(account);
   const { data: protocolData, refetch: refetchProtocol } = useProtocolData(account);
+  const { data: priceData } = useQiePrice();
+  const qiePrice = protocolData?.qie.priceUSD ?? priceData?.qie.priceUSD ?? null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -626,6 +656,7 @@ export default function LendPage() {
               isCorrectNetwork={isCorrectNetwork}
               qieBalance={walletData?.balanceQIE}
               protocolData={protocolData}
+              qiePrice={qiePrice}
               connect={connect}
               switchToQIE={switchToQIE}
               refetchWallet={() => refetchWallet()}

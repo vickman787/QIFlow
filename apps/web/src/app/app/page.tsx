@@ -32,10 +32,47 @@ function useWalletData(address: string | null) {
   });
 }
 
+interface PriceData {
+  qie: {
+    priceUSD: number | null;
+  };
+}
+
+function useQiePrice() {
+  return useQuery<PriceData>({
+    queryKey: ['qie-price'],
+    queryFn: async () => {
+      const res = await fetch('/api/qie/price');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+}
+
+function formatUsd(value?: number | null, maximumFractionDigits = 2) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return value.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits,
+  });
+}
+
+function getQieUsdValue(amount?: string | null, price?: number | null) {
+  const qieAmount = Number.parseFloat(amount ?? '0');
+  if (!Number.isFinite(qieAmount) || typeof price !== 'number' || !Number.isFinite(price)) {
+    return null;
+  }
+  return qieAmount * price;
+}
+
 function StatCard({
   label,
   value,
   sub,
+  detail,
   icon,
   live,
   gradient,
@@ -43,6 +80,7 @@ function StatCard({
   label: string;
   value: string;
   sub?: string;
+  detail?: string;
   icon: React.ReactNode;
   live?: boolean;
   gradient?: boolean;
@@ -65,6 +103,7 @@ function StatCard({
       <div className="text-2xl font-bold text-white mb-1">{value}</div>
       <div className="text-xs text-[#B8B2A6] font-medium uppercase tracking-wider">{label}</div>
       {sub && <div className="text-xs text-[#B8B2A6] mt-0.5">{sub}</div>}
+      {detail && <div className="text-xs text-[#F6C453] mt-1">{detail}</div>}
     </div>
   );
 }
@@ -109,8 +148,11 @@ function ActionCard({
 export default function Dashboard() {
   const { account, isConnected, connect, isConnecting, isCorrectNetwork, switchToQIE } = useWeb3();
   const { data: walletData, refetch: refetchWallet } = useWalletData(account);
+  const { data: priceData, refetch: refetchPrice } = useQiePrice();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const qiePrice = priceData?.qie.priceUSD ?? null;
+  const walletValueUSD = getQieUsdValue(walletData?.balanceQIE, qiePrice);
 
   const copyValue = (label: string, value: string) => {
     navigator.clipboard.writeText(value);
@@ -130,7 +172,7 @@ export default function Dashboard() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await refetchWallet();
+      await Promise.all([refetchWallet(), refetchPrice()]);
       toast.success('Dashboard refreshed.');
     } catch {
       toast.error('Failed to refresh dashboard.');
@@ -193,6 +235,11 @@ export default function Dashboard() {
                   : '...'
               }
               sub={account ? `${account.slice(0, 8)}...${account.slice(-6)}` : ''}
+              detail={
+                walletValueUSD !== null
+                  ? `${formatUsd(walletValueUSD)} total value at ${formatUsd(qiePrice, 6)}/QIE`
+                  : undefined
+              }
               icon={<Wallet className="w-5 h-5" />}
               gradient
             />
