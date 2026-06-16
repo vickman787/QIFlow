@@ -1,4 +1,19 @@
 import { QIE_MAINNET_RPC } from '@/lib/qiflow-contracts';
+import { QUSDC_TOKEN } from '@/lib/supported-assets';
+
+const BALANCE_OF_SELECTOR = '0x70a08231';
+
+function encodeAddress(address: string) {
+  return address.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+}
+
+function formatUnits(value: bigint, decimals: number, precision = decimals) {
+  const base = 10n ** BigInt(decimals);
+  const whole = value / base;
+  const fraction = value % base;
+  const fractionText = fraction.toString().padStart(decimals, '0').slice(0, precision);
+  return `${whole}.${fractionText}`.replace(/\.?0+$/, '');
+}
 
 async function rpcCall(method: string, params: unknown[] = []) {
   const res = await fetch(QIE_MAINNET_RPC, {
@@ -26,8 +41,20 @@ export async function GET(request: Request) {
       rpcCall('eth_getBalance', [address, 'latest']),
       rpcCall('eth_getTransactionCount', [address, 'latest']),
     ]);
+    const qusdcBalanceHex = await rpcCall('eth_call', [
+      {
+        to: QUSDC_TOKEN.address,
+        data: `${BALANCE_OF_SELECTOR}${encodeAddress(address)}`,
+      },
+      'latest',
+    ]).catch((err) => {
+      console.warn('[qie/balance] failed to fetch QUSDC balance', err);
+      return '0x0';
+    });
 
     const balanceWei = BigInt(balanceHex);
+    const qusdcBalanceUnits = BigInt(qusdcBalanceHex);
+    const balanceQUSDC = formatUnits(qusdcBalanceUnits, QUSDC_TOKEN.decimals);
     const balanceQIE = Number(balanceWei) / 1e18;
     const txCount = parseInt(txCountHex, 16);
 
@@ -35,6 +62,15 @@ export async function GET(request: Request) {
       address,
       balanceWei: balanceHex,
       balanceQIE: balanceQIE.toFixed(6),
+      balanceQUSDC,
+      tokens: {
+        qusdc: {
+          ...QUSDC_TOKEN,
+          balance: balanceQUSDC,
+          balanceUnits: qusdcBalanceHex,
+          valueUSD: Number.parseFloat(balanceQUSDC || '0') * QUSDC_TOKEN.priceUSD,
+        },
+      },
       txCount,
     });
   } catch (err) {

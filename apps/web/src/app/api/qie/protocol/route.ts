@@ -4,6 +4,7 @@ import {
   QIFLOW_CONTRACTS,
 } from '@/lib/qiflow-contracts';
 import { getQiePriceUSD, QIE_PRICE_SOURCE } from '@/lib/qie-price';
+import { QUSDC_TOKEN } from '@/lib/supported-assets';
 
 const GET_MARKET_DATA_SELECTOR = '0xa30c302d';
 const GET_USER_SUPPLY_BALANCE_SELECTOR = '0xd32074d7';
@@ -148,8 +149,11 @@ export async function GET(request: Request) {
 
   try {
     const nativeArg = encodeAddress(NATIVE_QIE_ADDRESS);
+    const qusdcArg = encodeAddress(QUSDC_TOKEN.address);
     const marketHex = await ethCall(`${GET_MARKET_DATA_SELECTOR}${nativeArg}`);
     const market = decodeWords(marketHex);
+    const qusdcMarketHex = await ethCall(`${GET_MARKET_DATA_SELECTOR}${qusdcArg}`);
+    const qusdcMarket = decodeWords(qusdcMarketHex);
 
     const collateralFactor = market[2] ?? 0n;
     const totalSupply = market[3] ?? 0n;
@@ -158,9 +162,21 @@ export async function GET(request: Request) {
     const borrowRatePerSecond = market[7] ?? 0n;
     const utilization = market[8] ?? 0n;
     const liquidity = totalSupply > totalBorrows ? totalSupply - totalBorrows : 0n;
+    const qusdcIsListed = (qusdcMarket[0] ?? 0n) === 1n;
+    const qusdcIsActive = (qusdcMarket[1] ?? 0n) === 1n;
+    const qusdcCollateralFactor = qusdcMarket[2] ?? 0n;
+    const qusdcTotalSupply = qusdcMarket[3] ?? 0n;
+    const qusdcTotalBorrows = qusdcMarket[4] ?? 0n;
+    const qusdcSupplyRatePerSecond = qusdcMarket[6] ?? 0n;
+    const qusdcBorrowRatePerSecond = qusdcMarket[7] ?? 0n;
+    const qusdcUtilization = qusdcMarket[8] ?? 0n;
+    const qusdcLiquidity =
+      qusdcTotalSupply > qusdcTotalBorrows ? qusdcTotalSupply - qusdcTotalBorrows : 0n;
 
     let userSupply = 0n;
     let userBorrow = 0n;
+    let qusdcUserSupply = 0n;
+    let qusdcUserBorrow = 0n;
     let totalCollateralUSD = 0n;
     let totalBorrowUSD = 0n;
     let availableBorrowUSD = 0n;
@@ -185,6 +201,16 @@ export async function GET(request: Request) {
         `${GET_USER_BORROW_BALANCE_SELECTOR}${encodeAddress(address)}${nativeArg}`
       );
       userBorrow = decodeWords(userBorrowHex)[0] ?? 0n;
+
+      const qusdcUserSupplyHex = await ethCall(
+        `${GET_USER_SUPPLY_BALANCE_SELECTOR}${encodeAddress(address)}${qusdcArg}`
+      );
+      qusdcUserSupply = decodeWords(qusdcUserSupplyHex)[0] ?? 0n;
+
+      const qusdcUserBorrowHex = await ethCall(
+        `${GET_USER_BORROW_BALANCE_SELECTOR}${encodeAddress(address)}${qusdcArg}`
+      );
+      qusdcUserBorrow = decodeWords(qusdcUserBorrowHex)[0] ?? 0n;
 
       const accountHex = await ethCall(`${GET_USER_ACCOUNT_DATA_SELECTOR}${encodeAddress(address)}`);
       const account = decodeWords(accountHex);
@@ -231,6 +257,24 @@ export async function GET(request: Request) {
         healthFactor: healthFactor === 2n ** 256n - 1n ? null : Number(healthFactor) / 1e18,
         pendingRewardsQIF: formatUnits(pendingRewards),
         claimedRewardsQIF: formatUnits(claimedRewards),
+      },
+      qusdc: {
+        ...QUSDC_TOKEN,
+        isListed: qusdcIsListed,
+        isActive: qusdcIsActive,
+        collateralFactorPct: Number((qusdcCollateralFactor * 10_000n) / WEI_PER_QIE) / 100,
+        priceUSD: QUSDC_TOKEN.priceUSD,
+        priceSource: QUSDC_TOKEN.priceSource,
+        supplyAPYPct:
+          Number((qusdcSupplyRatePerSecond * SECONDS_PER_YEAR * 10_000n) / WEI_PER_QIE) / 100,
+        borrowAPYPct:
+          Number((qusdcBorrowRatePerSecond * SECONDS_PER_YEAR * 10_000n) / WEI_PER_QIE) / 100,
+        utilizationPct: Number((qusdcUtilization * 10_000n) / WEI_PER_QIE) / 100,
+        liquidity: formatUnits(qusdcLiquidity, QUSDC_TOKEN.decimals),
+        totalSupply: formatUnits(qusdcTotalSupply, QUSDC_TOKEN.decimals),
+        totalBorrows: formatUnits(qusdcTotalBorrows, QUSDC_TOKEN.decimals),
+        userSupply: formatUnits(qusdcUserSupply, QUSDC_TOKEN.decimals, QUSDC_TOKEN.decimals),
+        userBorrow: formatUnits(qusdcUserBorrow, QUSDC_TOKEN.decimals, QUSDC_TOKEN.decimals),
       },
     });
   } catch (err) {

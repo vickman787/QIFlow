@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { useWeb3 } from '@/context/Web3Context';
 import { useQuery } from '@tanstack/react-query';
 import { QIFLOW_CONTRACTS } from '@/lib/qiflow-contracts';
+import { QUSDC_TOKEN } from '@/lib/supported-assets';
+import { GetQusdcButton } from '@/components/qiflow/GetQusdcButton';
 import {
   ArrowDownUp,
   Wallet,
@@ -18,6 +20,9 @@ import { toast } from 'sonner';
 
 const BORROW_NATIVE_SELECTOR = '0x884b9343';
 const REPAY_NATIVE_SELECTOR = '0xedba8209';
+const BORROW_TOKEN_SELECTOR = '0x4b8a3529';
+const REPAY_TOKEN_SELECTOR = '0x22867d78';
+const APPROVE_SELECTOR = '0x095ea7b3';
 const WEI_PER_QIE = 1_000_000_000_000_000_000n;
 const QIE_TOKEN_LOGO = '/qie-token-logo.png';
 
@@ -36,13 +41,40 @@ function parseQieToWei(value: string) {
   return `0x${wei.toString(16)}`;
 }
 
+function parseTokenToUnits(value: string, decimals: number, symbol: string) {
+  const trimmed = value.trim();
+  const pattern = new RegExp(`^\\d+(\\.\\d{0,${decimals}})?$`);
+  if (!pattern.test(trimmed)) {
+    throw new Error(`Enter a valid ${symbol} amount.`);
+  }
+
+  const [wholePart, fractionPart = ''] = trimmed.split('.');
+  const base = 10n ** BigInt(decimals);
+  const units = BigInt(wholePart || '0') * base + BigInt(fractionPart.padEnd(decimals, '0') || '0');
+
+  if (units <= 0n) throw new Error('Amount must be greater than 0.');
+  return units;
+}
+
 function encodeUint256(value: string) {
   return value.replace(/^0x/, '').padStart(64, '0');
+}
+
+function encodeBigUint256(value: bigint) {
+  return value.toString(16).padStart(64, '0');
+}
+
+function encodeAddress(address: string) {
+  return address.toLowerCase().replace(/^0x/, '').padStart(64, '0');
 }
 
 function AssetIcon({ market }: { market: (typeof BORROW_MARKETS)[number] }) {
   if (market.symbol === 'QIE') {
     return <img src={QIE_TOKEN_LOGO} alt="QIE" className="h-8 w-8 object-contain" />;
+  }
+
+  if (market.symbol === QUSDC_TOKEN.symbol) {
+    return <img src={QUSDC_TOKEN.logo} alt={QUSDC_TOKEN.symbol} className="h-8 w-8 rounded-full object-cover" />;
   }
 
   return <span>{market.icon}</span>;
@@ -59,13 +91,15 @@ const BORROW_MARKETS = [
     status: 'live',
   },
   {
-    symbol: 'USDC',
-    name: 'USD Coin',
+    symbol: QUSDC_TOKEN.symbol,
+    name: QUSDC_TOKEN.name,
     icon: '💵',
-    color: '#2775CA',
+    color: '#2E9B7F',
     minCollateralFactor: 80,
     liquidationThreshold: 85,
-    status: 'launching',
+    status: 'live',
+    tokenAddress: QUSDC_TOKEN.address,
+    explorerUrl: QUSDC_TOKEN.explorerUrl,
   },
   {
     symbol: 'WBTC',
@@ -105,6 +139,14 @@ interface ProtocolData {
     totalBorrowUSD: string;
     availableBorrowUSD: string;
     healthFactor: number | null;
+  };
+  qusdc: {
+    isListed: boolean;
+    isActive: boolean;
+    priceUSD: number;
+    borrowAPYPct: number;
+    liquidity: string;
+    userBorrow: string;
   };
 }
 
@@ -147,6 +189,14 @@ function getQieUsdValue(amount?: string | null, price?: number | null) {
     return null;
   }
   return qieAmount * price;
+}
+
+function getTokenUsdValue(amount?: string | null, price?: number | null) {
+  const tokenAmount = Number.parseFloat(amount ?? '0');
+  if (!Number.isFinite(tokenAmount) || typeof price !== 'number' || !Number.isFinite(price)) {
+    return null;
+  }
+  return tokenAmount * price;
 }
 
 function getBufferedRepayAmount(value?: string | null) {
@@ -213,11 +263,13 @@ function BorrowMarketRow({
   const [repayAmount, setRepayAmount] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isLive = market.status === 'live';
+  const isQusdc = market.symbol === QUSDC_TOKEN.symbol;
   const availableToBorrow = minNumericString(
     protocolData?.qie.availableBorrowUSD,
-    protocolData?.qie.liquidityQIE
+    isQusdc ? protocolData?.qusdc.liquidity : protocolData?.qie.liquidityQIE
   );
-  const hasDebt = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0') > 0;
+  const userDebt = isQusdc ? protocolData?.qusdc.userBorrow : protocolData?.qie.userBorrowQIE;
+  const hasDebt = Number.parseFloat(userDebt ?? '0') > 0;
 
   const refreshAfterTx = () => {
     window.setTimeout(() => {
@@ -276,6 +328,37 @@ function BorrowMarketRow({
     }
   };
 
+  const handleBorrowQusdc = async () => {
+    if (!(await ensureReady())) return;
+
+    setIsSubmitting(true);
+    try {
+      const ethereum = window.ethereum;
+      if (!ethereum) throw new Error(`MetaMask is required to borrow ${QUSDC_TOKEN.symbol}.`);
+
+      const value = parseTokenToUnits(borrowAmount, QUSDC_TOKEN.decimals, QUSDC_TOKEN.symbol);
+      const txHash = (await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            data: `${BORROW_TOKEN_SELECTOR}${encodeAddress(QUSDC_TOKEN.address)}${encodeBigUint256(value)}`,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Borrow transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setBorrowAmount('');
+      refreshAfterTx();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : `Failed to borrow ${QUSDC_TOKEN.symbol}.`;
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleRepayNative = async () => {
     if (!(await ensureReady())) return;
 
@@ -308,6 +391,50 @@ function BorrowMarketRow({
     }
   };
 
+  const handleRepayQusdc = async () => {
+    if (!(await ensureReady())) return;
+
+    setIsSubmitting(true);
+    try {
+      const ethereum = window.ethereum;
+      if (!ethereum) throw new Error(`MetaMask is required to repay ${QUSDC_TOKEN.symbol}.`);
+
+      const value = parseTokenToUnits(repayAmount, QUSDC_TOKEN.decimals, QUSDC_TOKEN.symbol);
+      const encodedAmount = encodeBigUint256(value);
+      const approveHash = (await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QUSDC_TOKEN.address,
+            data: `${APPROVE_SELECTOR}${encodeAddress(QIFLOW_CONTRACTS.QIFlowPool)}${encodedAmount}`,
+          },
+        ],
+      })) as string;
+      toast.success(`Approval sent: ${approveHash.slice(0, 10)}...${approveHash.slice(-6)}`);
+
+      const txHash = (await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [
+          {
+            from: account,
+            to: QIFLOW_CONTRACTS.QIFlowPool,
+            data: `${REPAY_TOKEN_SELECTOR}${encodeAddress(QUSDC_TOKEN.address)}${encodedAmount}`,
+          },
+        ],
+      })) as string;
+
+      toast.success(`Repay transaction sent: ${txHash.slice(0, 10)}...${txHash.slice(-6)}`);
+      setRepayAmount('');
+      refreshAfterTx();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : `Failed to repay ${QUSDC_TOKEN.symbol}.`;
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div
       className={`rounded-2xl border transition-all ${open ? 'border-[#B7791F]/30' : 'border-white/5'} bg-[#14110B] overflow-hidden`}
@@ -328,7 +455,7 @@ function BorrowMarketRow({
             <span className="font-bold text-white text-sm">{market.symbol}</span>
             {!isLive && (
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 font-semibold">
-                Coming Soon
+                {market.symbol === QUSDC_TOKEN.symbol ? 'Pool Pending' : 'Coming Soon'}
               </span>
             )}
           </div>
@@ -339,7 +466,9 @@ function BorrowMarketRow({
           <div>
             <div className="text-xs text-[#B8B2A6] mb-1">Borrow APY</div>
             <div className="text-sm font-bold text-[#FFB74D]">
-              {isLive && protocolData ? `${protocolData.qie.borrowAPYPct.toFixed(2)}%` : '-'}
+              {isLive && protocolData
+                ? `${(isQusdc ? protocolData.qusdc.borrowAPYPct : protocolData.qie.borrowAPYPct).toFixed(2)}%`
+                : '-'}
             </div>
           </div>
           <div>
@@ -349,7 +478,11 @@ function BorrowMarketRow({
           <div>
             <div className="text-xs text-[#B8B2A6] mb-1">Available</div>
             <div className="text-sm font-bold text-[#B8B2A6]">
-              {isLive ? `${formatQie(availableToBorrow)} QIE` : '-'}
+              {isLive
+                ? isQusdc
+                  ? `${formatQie(availableToBorrow, 2)} ${QUSDC_TOKEN.symbol}`
+                  : `${formatQie(availableToBorrow)} QIE`
+                : '-'}
             </div>
           </div>
         </div>
@@ -393,18 +526,32 @@ function BorrowMarketRow({
               <div className="bg-[#0B0A07] rounded-xl p-4">
                 <p className="text-xs text-[#B8B2A6] mb-1">Borrow Limit</p>
                 <p className="text-lg font-bold text-white">
-                  {isLive ? `${formatQie(protocolData?.qie.availableBorrowUSD)} QIE` : '-'}
+                  {isLive
+                    ? isQusdc
+                      ? `${formatQie(availableToBorrow, 2)} ${QUSDC_TOKEN.symbol}`
+                      : `${formatQie(protocolData?.qie.availableBorrowUSD)} QIE`
+                    : '-'}
                 </p>
                 {isLive && protocolData && (
                   <p className="text-xs text-[#B8B2A6]">
-                    {formatUsd(getQieUsdValue(protocolData.qie.availableBorrowUSD, protocolData.qie.priceUSD))}
+                    {isQusdc
+                      ? formatUsd(getTokenUsdValue(availableToBorrow, QUSDC_TOKEN.priceUSD))
+                      : formatUsd(getQieUsdValue(protocolData.qie.availableBorrowUSD, protocolData.qie.priceUSD))}
                   </p>
                 )}
                 <p className="text-xs text-[#B8B2A6] mt-1">
                   {hasDebt
-                    ? `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE currently borrowed`
+                    ? isQusdc
+                      ? `${formatQie(protocolData?.qusdc.userBorrow, 2)} ${QUSDC_TOKEN.symbol} currently borrowed`
+                      : `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE currently borrowed`
                     : 'Supply assets first to create borrow limit'}
                 </p>
+                {isQusdc && (
+                  <GetQusdcButton
+                    compact
+                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#F6C453]/30 px-4 py-2 text-xs font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10"
+                  />
+                )}
               </div>
 
               {isLive ? (
@@ -425,7 +572,7 @@ function BorrowMarketRow({
                     </button>
                   </div>
                   <button
-                    onClick={handleBorrowNative}
+                    onClick={isQusdc ? handleBorrowQusdc : handleBorrowNative}
                     disabled={isSubmitting}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-[#B7791F] to-[#F6C453] text-white font-bold text-sm hover:opacity-90 transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -437,11 +584,15 @@ function BorrowMarketRow({
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-[#B8B2A6]">Outstanding debt</p>
                         <p className="text-sm font-bold text-white">
-                          {formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE
+                          {isQusdc
+                            ? `${formatQie(protocolData?.qusdc.userBorrow, 2)} ${QUSDC_TOKEN.symbol}`
+                            : `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE`}
                         </p>
                         {protocolData && (
                           <p className="text-xs text-[#B8B2A6]">
-                            {formatUsd(getQieUsdValue(protocolData.qie.userBorrowQIE, protocolData.qie.priceUSD))}
+                            {isQusdc
+                              ? formatUsd(getTokenUsdValue(protocolData.qusdc.userBorrow, QUSDC_TOKEN.priceUSD))
+                              : formatUsd(getQieUsdValue(protocolData.qie.userBorrowQIE, protocolData.qie.priceUSD))}
                           </p>
                         )}
                       </div>
@@ -455,7 +606,11 @@ function BorrowMarketRow({
                         />
                         <button
                           onClick={() =>
-                            setRepayAmount(getBufferedRepayAmount(protocolData?.qie.userBorrowQIE))
+                            setRepayAmount(
+                              getBufferedRepayAmount(
+                                isQusdc ? protocolData?.qusdc.userBorrow : protocolData?.qie.userBorrowQIE
+                              )
+                            )
                           }
                           className="rounded-lg px-2 py-1 text-xs font-bold text-[#F6C453] hover:bg-[#F6C453]/10"
                         >
@@ -463,22 +618,32 @@ function BorrowMarketRow({
                         </button>
                       </div>
                       <button
-                        onClick={handleRepayNative}
+                        onClick={isQusdc ? handleRepayQusdc : handleRepayNative}
                         disabled={isSubmitting}
                         className="w-full rounded-xl border border-[#F6C453]/30 px-4 py-2.5 text-sm font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        Repay QIE
+                        Repay {market.symbol}
                       </button>
                     </div>
                   )}
                 </div>
               ) : (
-                <button
-                  disabled
-                  className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[#B8B2A6] font-bold text-sm cursor-not-allowed"
-                >
-                  Market Launching Soon
-                </button>
+                <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-sm font-bold text-[#B8B2A6]">Pool Market Not Listed</p>
+                  <p className="mt-1 text-xs text-[#B8B2A6]">
+                    QUSDC is priced at {formatUsd(QUSDC_TOKEN.priceUSD)}, but QIFlow borrowing is not listed on-chain for this token yet.
+                  </p>
+                  {'explorerUrl' in market && market.explorerUrl && (
+                    <a
+                      href={market.explorerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs text-[#B8B2A6] hover:text-[#F6C453] transition-colors"
+                    >
+                      View token <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
               )}
             </div>
           </div>
