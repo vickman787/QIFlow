@@ -17,6 +17,8 @@ import {
   Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { QUSDC_TOKEN } from '@/lib/supported-assets';
+import { GetQusdcButton } from '@/components/qiflow/GetQusdcButton';
 
 function useWalletData(address: string | null) {
   return useQuery({
@@ -68,12 +70,31 @@ function getQieUsdValue(amount?: string | null, price?: number | null) {
   return qieAmount * price;
 }
 
+function getTokenUsdValue(amount?: string | null, price?: number | null) {
+  const tokenAmount = Number.parseFloat(amount ?? '0');
+  if (!Number.isFinite(tokenAmount) || typeof price !== 'number' || !Number.isFinite(price)) {
+    return null;
+  }
+  return tokenAmount * price;
+}
+
+function formatTokenAmount(value?: string | null, decimals = 4) {
+  if (!value) return '-';
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '-';
+  return amount.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  });
+}
+
 function StatCard({
   label,
   value,
   sub,
   detail,
   icon,
+  action,
   live,
   gradient,
 }: {
@@ -82,6 +103,7 @@ function StatCard({
   sub?: string;
   detail?: string;
   icon: React.ReactNode;
+  action?: React.ReactNode;
   live?: boolean;
   gradient?: boolean;
 }) {
@@ -104,6 +126,7 @@ function StatCard({
       <div className="text-xs text-[#B8B2A6] font-medium uppercase tracking-wider">{label}</div>
       {sub && <div className="text-xs text-[#B8B2A6] mt-0.5">{sub}</div>}
       {detail && <div className="text-xs text-[#F6C453] mt-1">{detail}</div>}
+      {action && <div className="mt-3">{action}</div>}
     </div>
   );
 }
@@ -226,7 +249,7 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-[#B8B2A6] uppercase tracking-wider mb-3">
             Your Wallet
           </h2>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <StatCard
               label="QIE Balance"
               value={
@@ -234,7 +257,6 @@ export default function Dashboard() {
                   ? `${parseFloat(walletData.balanceQIE).toFixed(4)} QIE`
                   : '...'
               }
-              sub={account ? `${account.slice(0, 8)}...${account.slice(-6)}` : ''}
               detail={
                 walletValueUSD !== null
                   ? `${formatUsd(walletValueUSD)} total value`
@@ -242,6 +264,19 @@ export default function Dashboard() {
               }
               icon={<Wallet className="w-5 h-5" />}
               gradient
+            />
+            <StatCard
+              label={`${QUSDC_TOKEN.symbol} Balance`}
+              value={`${formatTokenAmount(walletData?.tokens?.qusdc?.balance, 2)} ${QUSDC_TOKEN.symbol}`}
+              sub="QIE Mainnet ERC-20"
+              detail={`${formatUsd(getTokenUsdValue(walletData?.tokens?.qusdc?.balance, QUSDC_TOKEN.priceUSD))} total value`}
+              icon={<Wallet className="w-5 h-5" />}
+              action={
+                <GetQusdcButton
+                  compact
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#F6C453]/30 px-4 py-2 text-xs font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10"
+                />
+              }
             />
           </div>
         </div>

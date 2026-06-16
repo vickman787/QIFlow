@@ -189,6 +189,7 @@ export default function PortfolioPage() {
 
   const shortAddress = account ? `${account.slice(0, 8)}...${account.slice(-6)}` : '';
   const networkName = chainId === 1990 ? 'QIE Mainnet' : `Chain ${chainId}`;
+  const walletBalanceQie = walletData?.balanceQIE ?? qieBalance;
   const suppliedQie = Number.parseFloat(protocolData?.qie.userSupplyQIE ?? '0');
   const hasSuppliedQie = Number.isFinite(suppliedQie) && suppliedQie > 0;
   const borrowedQie = Number.parseFloat(protocolData?.qie.userBorrowQIE ?? '0');
@@ -386,6 +387,9 @@ export default function PortfolioPage() {
                     : '—'}
               </p>
               <p className="text-xs text-[#B8B2A6]">QIE</p>
+              <p className="mt-1 text-xs text-[#F6C453]">
+                {formatUsd(getQieUsdValue(walletBalanceQie, protocolData?.qie.priceUSD))} total value
+              </p>
             </div>
           </div>
         </div>
