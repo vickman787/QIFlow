@@ -268,7 +268,6 @@ export default function Dashboard() {
             <StatCard
               label={`${QUSDC_TOKEN.symbol} Balance`}
               value={`${formatTokenAmount(walletData?.tokens?.qusdc?.balance, 2)} ${QUSDC_TOKEN.symbol}`}
-              sub="QIE Mainnet ERC-20"
               detail={`${formatUsd(getTokenUsdValue(walletData?.tokens?.qusdc?.balance, QUSDC_TOKEN.priceUSD))} total value`}
               icon={<Wallet className="w-5 h-5" />}
               action={
