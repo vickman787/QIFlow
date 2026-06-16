@@ -5,7 +5,6 @@ import { useWeb3 } from '@/context/Web3Context';
 import { useQuery } from '@tanstack/react-query';
 import { QIFLOW_CONTRACTS } from '@/lib/qiflow-contracts';
 import { QUSDC_TOKEN } from '@/lib/supported-assets';
-import { GetQusdcButton } from '@/components/qiflow/GetQusdcButton';
 import {
   ArrowDownUp,
   Wallet,
@@ -100,15 +99,6 @@ const BORROW_MARKETS = [
     status: 'live',
     tokenAddress: QUSDC_TOKEN.address,
     explorerUrl: QUSDC_TOKEN.explorerUrl,
-  },
-  {
-    symbol: 'WBTC',
-    name: 'Wrapped Bitcoin',
-    icon: '₿',
-    color: '#F7931A',
-    minCollateralFactor: 70,
-    liquidationThreshold: 75,
-    status: 'launching',
   },
 ];
 
@@ -546,12 +536,6 @@ function BorrowMarketRow({
                       : `${formatQie(protocolData?.qie.userBorrowQIE, 8)} QIE currently borrowed`
                     : 'Supply assets first to create borrow limit'}
                 </p>
-                {isQusdc && (
-                  <GetQusdcButton
-                    compact
-                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#F6C453]/30 px-4 py-2 text-xs font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10"
-                  />
-                )}
               </div>
 
               {isLive ? (

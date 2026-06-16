@@ -5,7 +5,6 @@ import { useWeb3 } from '@/context/Web3Context';
 import { useQuery } from '@tanstack/react-query';
 import { QIFLOW_CONTRACTS } from '@/lib/qiflow-contracts';
 import { QUSDC_TOKEN } from '@/lib/supported-assets';
-import { GetQusdcButton } from '@/components/qiflow/GetQusdcButton';
 import { Wallet, ArrowRight, Info, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -154,14 +153,6 @@ const MARKETS = [
     status: 'live',
     tokenAddress: QUSDC_TOKEN.address,
     explorerUrl: QUSDC_TOKEN.explorerUrl,
-  },
-  {
-    symbol: 'WBTC',
-    name: 'Wrapped Bitcoin',
-    icon: '₿',
-    color: '#F7931A',
-    description: 'Bitcoin, wrapped for QIE Blockchain',
-    status: 'launching',
   },
 ];
 
@@ -719,12 +710,6 @@ function MarketRow({
                       {formatUsd(getTokenUsdValue(tokenBalance, QUSDC_TOKEN.priceUSD))} total value
                     </p>
                   )}
-                  {isQusdc && (
-                    <GetQusdcButton
-                      compact
-                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#F6C453]/30 px-4 py-2 text-xs font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10"
-                    />
-                  )}
                   {'explorerUrl' in market && market.explorerUrl && (
                     <a
                       href={market.explorerUrl}
@@ -925,10 +910,6 @@ export default function LendPage() {
             <p className="text-xs text-[#F6C453]">
               {formatUsd(getTokenUsdValue(walletData?.tokens?.qusdc?.balance, QUSDC_TOKEN.priceUSD))}
             </p>
-            <GetQusdcButton
-              compact
-              className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#F6C453]/30 px-4 py-2 text-xs font-bold text-[#F6C453] transition-colors hover:bg-[#F6C453]/10"
-            />
           </div>
           <div className="bg-[#14110B] border border-white/5 rounded-2xl p-4">
             <p className="text-xs text-[#B8B2A6] mb-1">Net APY</p>
